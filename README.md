@@ -3,6 +3,7 @@ Tuned for 2018 Subaru Crosstrek. Got a huge start from martinl's subaru-devel2 b
 Additional changes added:
 * Awareness time increase to 3000 minutes for testing
 * Do not disengage on gas press
+* Imperial units for set speed
 
 
 [![](https://i.imgur.com/xY2gdHv.png)](#)
