@@ -71,6 +71,20 @@ class CarInterface(object):
       ret.lateralTuning.pid.kpV, ret.lateralTuning.pid.kiV = [[0.2, 0.3], [0.02, 0.03]]
       ret.steerMaxBP = [0.] # m/s
       ret.steerMaxV = [1.]
+      
+      #start XV with imprezza values
+    if candidate == CAR.XV:
+      ret.mass = 1568 + std_cargo
+      ret.wheelbase = 2.67
+      ret.centerToFront = ret.wheelbase * 0.5
+      ret.steerRatio = 15
+      tire_stiffness_factor = 1.0
+      ret.steerActuatorDelay = 0.4   # end-to-end angle controller
+      ret.lateralTuning.pid.kf = 0.00005
+      ret.lateralTuning.pid.kiBP, ret.lateralTuning.pid.kpBP = [[0., 20.], [0., 20.]]
+      ret.lateralTuning.pid.kpV, ret.lateralTuning.pid.kiV = [[0.2, 0.3], [0.02, 0.03]]
+      ret.steerMaxBP = [0.] # m/s
+      ret.steerMaxV = [1.]
 
     ret.steerControlType = car.CarParams.SteerControlType.torque
     ret.steerRatioRear = 0.
