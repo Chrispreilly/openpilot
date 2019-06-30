@@ -2,6 +2,7 @@ from selfdrive.car import dbc_dict
 
 class CAR:
   IMPREZA = "SUBARU IMPREZA LIMITED 2019"
+  XV = “2018 Subaru Crosstrek”
 
 FINGERPRINTS = {
   CAR.IMPREZA: [{
