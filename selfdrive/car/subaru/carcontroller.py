@@ -19,7 +19,7 @@ class CarControllerParams():
       self.STEER_DRIVER_MULTIPLIER = 10   # weight driver torque heavily
       self.STEER_DRIVER_FACTOR = 1     # from dbc
       
-    if car_fingerprint == CAR.XV:
+    if car_fingerprint == CAR.CROSSTREK:
       self.STEER_MAX = 2047              # max_steer 4095
       self.STEER_STEP = 2                # how often we update the steer cmd
       self.STEER_DELTA_UP = 50           # torque increase per refresh, 0.8s to max
