@@ -60,7 +60,7 @@ def get_powertrain_can_parser(CP):
 def get_camera_can_parser(CP):
   signals = [
     ("Cruise_Set_Speed", "ES_DashStatus", 0),
-    ("Cruise_Disengaged", "ES_DashStatus", 1),
+    #doesnt work ("Cruise_Disengaged", "ES_DashStatus", 1),
     
     ("Counter", "ES_Distance", 0),
     ("Signal1", "ES_Distance", 0),
@@ -184,6 +184,6 @@ class CarState(object):
     self.cruise_buttons_Main = cp.vl["Cruise_Buttons"]['Main']
     self.cruise_buttons_set = cp.vl["Cruise_Buttons"]['set']
     self.cruise_buttons_resume = cp.vl["Cruise_Buttons"]['Resume']
-    self.cruise_disengaged = cp.vl["ES_DashStatus"]['Cruise_Disengaged']    
+    # doesnt work self.cruise_disengaged = cp.vl["ES_DashStatus"]['Cruise_Disengaged']    
     
     
