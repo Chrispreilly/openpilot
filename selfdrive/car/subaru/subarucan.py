@@ -64,7 +64,6 @@ def create_openpilot_active(packer):
 #Test new line for resume on stop
 def create_cruise_buttons(packer, car_fingerprint, resume, frame, steer_step, cruise_buttons_Signal1, cruise_buttons_Signal2, cruise_buttons_Main, cruise_buttons_set):
 
-  if car_fingerprint == CAR.CROSSTREK:
     #counts from 0 to 15 then back to 0 + 16 for enable bit
     idx = ((frame // steer_step) % 16)
 
