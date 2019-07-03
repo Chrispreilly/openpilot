@@ -59,7 +59,7 @@ class CarController(object):
     #Auto resume on standstill
     self.current_time = sec_since_boot() 
     #Flag at standstill
-    if CS.standstill and (CS.standstill =! CS.last_standstill):
+    if CS.standstill and (CS.standstill != CS.last_standstill):
       self.standstill_time = sec_since_boot()
     self.last_standstill = CS.standstill
       
