@@ -95,7 +95,7 @@ class CarController(object):
       
       #Send resume if LKAS engaed and vehicle stopped for 3 seconds
       #Eyesight ACC begins to time out after 3 seconds if resume not sent
-      if CS.standstill and CS.acc_active and ((self.current_time - self.standstill_time) > 3.1):
+      if CS.standstill and CS.acc_active and ((self.current_time - self.standstill_time) > 1.1):
         self.standstill_time = sec_since_boot()
         resume = 1
       else:
