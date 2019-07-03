@@ -75,7 +75,7 @@ def create_cruise_buttons(packer, car_fingerprint, resume, frame, steer_step, cr
     "Resume": resume, ###Good
     "Signal2": cruise_buttons_Signal2
   }
-  values["Checksum"] = subaru_checksum(packer, values, 0x129) ###Good
+  values["Checksum"] = subaru_checksum(packer, values, 0x146) ###Good
 
   return packer.make_can_msg("Cruise_Buttons", 1, values)
 
