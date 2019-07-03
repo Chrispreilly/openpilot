@@ -74,9 +74,9 @@ class CarInterface(object):
       
       #start crosstrek with imprezza values
     if candidate == CAR.CROSSTREK:
-      ret.mass = 1568 + std_cargo
-      ret.wheelbase = 2.67
-      ret.centerToFront = ret.wheelbase * 0.5
+      ret.mass = 1412 + std_cargo
+      ret.wheelbase = 2.66
+      ret.centerToFront = ret.wheelbase * 0.4
       ret.steerRatio = 15
       tire_stiffness_factor = 1.0
       ret.steerActuatorDelay = 0.4   # end-to-end angle controller
