@@ -79,10 +79,10 @@ class CarInterface(object):
       ret.centerToFront = ret.wheelbase * 0.4
       ret.steerRatio = 15
       tire_stiffness_factor = 1.0
-      ret.steerActuatorDelay = 0.2 #0.4   # end-to-end angle controller
+      ret.steerActuatorDelay = 0.4 #0.4   # end-to-end angle controller
       ret.lateralTuning.pid.kf = 0.00005
       ret.lateralTuning.pid.kiBP, ret.lateralTuning.pid.kpBP = [[0., 20.], [0., 20.]]
-      ret.lateralTuning.pid.kpV, ret.lateralTuning.pid.kiV = [[0.1, 0.3], [0.02, 0.04]] # [[0.2, 0.3], [0.02, 0.03]]
+      ret.lateralTuning.pid.kpV, ret.lateralTuning.pid.kiV = [[0.1, 0.3], [0.02, 0.03]] # [[0.2, 0.3], [0.02, 0.03]]
       ret.steerMaxBP = [0.] # m/s
       ret.steerMaxV = [1.]
 
