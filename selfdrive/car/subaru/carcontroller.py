@@ -78,6 +78,15 @@ class CarController(object):
       # for dashboard
       self.apply_steer = apply_steer
       self.actuators_steer = actuators.steer
+      
+      #Send resume if LKAS engaed, vehicle stopped, and acc disenaging (lasts a few seconds)
+      if CS.standstill and CS.acc_active and CS.cruise_disengaged:
+        resume = 1
+      else:
+        resume = CS.cruise_buttons_resume
+      
+      can_sends.append(subarucan.create_cruise_buttons(self.packer, CS.CP.carFingerprint, resume, frame, P.STEER_STEP, CS.cruise_buttons_Signal1, CS.cruise_buttons_Signal2, CS.cruise_buttons_Main, CS.cruise_buttons_set))
+
 
     # generate 1Hz op_active msg for global to enable panda es filtering
     if (frame % 100) == 0:
@@ -91,9 +100,5 @@ class CarController(object):
       can_sends.append(subarucan.create_es_lkas_state(self.packer, CS.es_lkas_msg, visual_alert, left_line, right_line))
       self.es_lkas_cnt = CS.es_lkas_msg["Counter"]
       
-    if CS.standstill and CS.acc_active
-      
-    #Need logic for when to send resume  
-    can_sends.append(subarucan.create_cruise_buttons(self.packer, CS.CP.carFingerprint, resume, frame, P.STEER_STEP, CS.cruise_buttons_Signal1, CS.cruise_buttons_Signal2, CS.cruise_buttons_Main, CS.cruise_buttons_set))
 
     sendcan.send(can_list_to_can_capnp(can_sends, msgtype='sendcan'))
