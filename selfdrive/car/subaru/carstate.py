@@ -39,6 +39,11 @@ def get_powertrain_can_parser(CP):
     ("DOOR_OPEN_RL", "BodyInfo", 1),
     ("Units", "Dash_State", 1),
     ("Gear", "Transmission", 0),
+    ("Signal1", "Cruise_Buttons", 0),
+    ("Main", "Cruise_Buttons", 0),
+    ("set", "Cruise_Buttons", 0),
+    ("Resume", "Cruise_Buttons", 0),
+    ("Signal2", "Cruise_Buttons", 0),
   ]
 
   checks = [
@@ -171,3 +176,11 @@ class CarState(object):
 
     self.es_distance_msg = copy.copy(cp_cam.vl["ES_Distance"])
     self.es_lkas_msg = copy.copy(cp_cam.vl["ES_LKAS_State"])
+    
+    #For resume when stopped
+    self.cruise_buttons_Signal1 = cp.vl["Cruise_Buttons"]['Signal1']
+    self.cruise_buttons_Signal2 = cp.vl["Cruise_Buttons"]['Signal2']
+    self.cruise_buttons_Main = cp.vl["Cruise_Buttons"]['Main']
+    self.cruise_buttons_set = cp.vl["Cruise_Buttons"]['set']
+    self.cruise_buttons_resume = cp.vl["Cruise_Buttons"]['Resume']
+    
