@@ -46,6 +46,7 @@ class CarController(object):
     self.current_time = 0
     self.standstill_time = 0
     self.last_standstill = 0
+    self.counter = 0
 
     # Setup detection helper. Routes commands to
     # an appropriate CAN bus number.
@@ -94,10 +95,14 @@ class CarController(object):
       self.actuators_steer = actuators.steer
       
       #Send resume if LKAS engaed and vehicle stopped for 3 seconds
-      #Eyesight ACC begins to time out after 3 seconds if resume not sent
+      #Eyesight ACC begins to time out after 3 seconds if resume not sent. Send resume for 10 messages.
       if CS.standstill and CS.acc_active and ((self.current_time - self.standstill_time) > 1.1):
-        self.standstill_time = sec_since_boot()
-        resume = 1
+        if self.counter < 10:
+          resume = 1
+          self.counter = self.counter + 1
+        else: #Messages sent, reset clock and counter
+          self.standstill_time = sec_since_boot()
+          self.counter = 0
       else:
         resume = CS.cruise_buttons_resume
       
