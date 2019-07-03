@@ -65,17 +65,17 @@ def create_openpilot_active(packer):
 def create_cruise_buttons(packer, car_fingerprint, resume, frame, steer_step, cruise_buttons_Signal1, cruise_buttons_Signal2, cruise_buttons_Main, cruise_buttons_set):
 
     #counts from 0 to 15 then back to 0 + 16 for enable bit
-    idx = ((frame // steer_step) % 16)
+  idx = ((frame // steer_step) % 16)
 
-    values = {
-      "Counter": idx, ###Good
-      "Signal1": cruise_buttons_Signal1,
-      "Main": cruise_buttons_Main,
-      "set": cruise_buttons_set,
-      "Resume": resume, ###Good
-      "Signal2": cruise_buttons_Signal2
-    }
-    values["Checksum"] = subaru_checksum(packer, values, 0x129) ###Good
+  values = {
+    "Counter": idx, ###Good
+    "Signal1": cruise_buttons_Signal1,
+    "Main": cruise_buttons_Main,
+    "set": cruise_buttons_set,
+    "Resume": resume, ###Good
+    "Signal2": cruise_buttons_Signal2
+  }
+  values["Checksum"] = subaru_checksum(packer, values, 0x129) ###Good
 
   return packer.make_can_msg("Cruise_Buttons", 1, values)
 
