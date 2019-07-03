@@ -91,6 +91,8 @@ class CarController(object):
       can_sends.append(subarucan.create_es_lkas_state(self.packer, CS.es_lkas_msg, visual_alert, left_line, right_line))
       self.es_lkas_cnt = CS.es_lkas_msg["Counter"]
       
+    if CS.standstill and CS.acc_active
+      
     #Need logic for when to send resume  
     can_sends.append(subarucan.create_cruise_buttons(self.packer, CS.CP.carFingerprint, resume, frame, P.STEER_STEP, CS.cruise_buttons_Signal1, CS.cruise_buttons_Signal2, CS.cruise_buttons_Main, CS.cruise_buttons_set))
 
