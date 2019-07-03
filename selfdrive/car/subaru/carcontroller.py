@@ -39,6 +39,7 @@ class CarController(object):
     self.actuators_steer = 0
     self.es_distance_cnt = -1
     self.es_lkas_cnt = -1
+    self.resume = 0
 
     # Setup detection helper. Routes commands to
     # an appropriate CAN bus number.
@@ -89,5 +90,8 @@ class CarController(object):
     if self.es_lkas_cnt != CS.es_lkas_msg["Counter"]:
       can_sends.append(subarucan.create_es_lkas_state(self.packer, CS.es_lkas_msg, visual_alert, left_line, right_line))
       self.es_lkas_cnt = CS.es_lkas_msg["Counter"]
+      
+    #Need logic for when to send resume  
+    can_sends.append(subarucan.create_cruise_buttons(self.packer, CS.CP.carFingerprint, resume, frame, P.STEER_STEP))##Need more
 
     sendcan.send(can_list_to_can_capnp(can_sends, msgtype='sendcan'))
