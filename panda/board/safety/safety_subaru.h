@@ -116,7 +116,7 @@ static int subaru_fwd_hook(int bus_num, CAN_FIFOMailBox_TypeDef *to_fwd) {
   if (bus_num == 0) {
     
     //crosstrek cruise buttons
-    if (addr == 0x129) {
+    if (addr == 0x146) {
       return -1;
     }
     return 1; // ES CAN
