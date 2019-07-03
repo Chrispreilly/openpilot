@@ -60,7 +60,8 @@ def get_powertrain_can_parser(CP):
 def get_camera_can_parser(CP):
   signals = [
     ("Cruise_Set_Speed", "ES_DashStatus", 0),
-
+    ("Cruise_Disengaged", "ES_DashStatus", 1),
+    
     ("Counter", "ES_Distance", 0),
     ("Signal1", "ES_Distance", 0),
     ("Signal2", "ES_Distance", 0),
@@ -89,7 +90,7 @@ def get_camera_can_parser(CP):
     ("Traffic_light_Ahead", "ES_LKAS_State", 0),
     ("Right_Depart", "ES_LKAS_State", 0),
     ("Signal5", "ES_LKAS_State", 0),
-    ("Cruise_Disengaged", "ES_DashStatus", 0),
+
   ]
 
   checks = [
