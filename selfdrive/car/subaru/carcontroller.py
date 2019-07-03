@@ -80,7 +80,7 @@ class CarController(object):
       self.actuators_steer = actuators.steer
       
       #Send resume if LKAS engaed, vehicle stopped, and acc disenaging (lasts a few seconds)
-      if CS.standstill and CS.acc_active > 0 and CS.cruise_disengaged > 0:
+      if true: #CS.standstill and CS.acc_active > 0 and CS.cruise_disengaged > 0:
         resume = 1
       else:
         resume = CS.cruise_buttons_resume
