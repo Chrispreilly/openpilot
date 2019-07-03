@@ -27,7 +27,7 @@ def create_steering_control(packer, car_fingerprint, apply_steer, frame, steer_s
 
 def create_steering_status(packer, car_fingerprint, apply_steer, frame, steer_step):
 
-  if car_fingerprint == CAR.IMPREZA or CAR.XV:
+  if car_fingerprint == CAR.IMPREZA or CAR.CROSSTREK:
     values = {}
     values["Checksum"] = subaru_checksum(packer, {}, 0x322)
 
