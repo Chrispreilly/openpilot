@@ -44,6 +44,7 @@ def get_powertrain_can_parser(CP):
     ("set", "Cruise_Buttons", 0),
     ("Resume", "Cruise_Buttons", 0),
     ("Signal2", "Cruise_Buttons", 0),
+    ("Cruise_Disengaged", "ES_DashStatus", 0),
   ]
 
   checks = [
@@ -183,4 +184,6 @@ class CarState(object):
     self.cruise_buttons_Main = cp.vl["Cruise_Buttons"]['Main']
     self.cruise_buttons_set = cp.vl["Cruise_Buttons"]['set']
     self.cruise_buttons_resume = cp.vl["Cruise_Buttons"]['Resume']
+    self.cruise_disengaged = cp.v1["ES_DashStatus"]['Cruise_Disengaged']    
+    
     
