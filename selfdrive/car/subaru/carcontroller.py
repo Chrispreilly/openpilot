@@ -40,6 +40,8 @@ class CarController(object):
     self.es_distance_cnt = -1
     self.es_lkas_cnt = -1
     self.resume = 0
+    self.last_resume_time = 0
+    self.current_time = 0
 
     # Setup detection helper. Routes commands to
     # an appropriate CAN bus number.
@@ -49,6 +51,8 @@ class CarController(object):
 
   def update(self, sendcan, enabled, CS, frame, actuators, pcm_cancel_cmd, visual_alert, left_line, right_line):
     """ Controls thread """
+    
+    self.current_time = sec_since_boot() 
 
     P = self.params
 
@@ -80,7 +84,8 @@ class CarController(object):
       self.actuators_steer = actuators.steer
       
       #Send resume if LKAS engaed, vehicle stopped, and acc disenaging (lasts a few seconds)
-      if CS.standstill and CS.acc_active and CS.cruise_disengaged:
+      if CS.standstill and CS.acc_active and CS.cruise_disengaged and ((self.current_time - self.last_resume_time) > 0.1):
+        self.last_resume_time = sec_since_boot()
         resume = 1
       else:
         resume = CS.cruise_buttons_resume
