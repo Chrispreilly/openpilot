@@ -184,6 +184,6 @@ class CarState(object):
     self.cruise_buttons_Main = cp.vl["Cruise_Buttons"]['Main']
     self.cruise_buttons_set = cp.vl["Cruise_Buttons"]['set']
     self.cruise_buttons_resume = cp.vl["Cruise_Buttons"]['Resume']
-    self.cruise_disengaged = cp.v1["ES_DashStatus"]['Cruise_Disengaged']    
+    self.cruise_disengaged = cp.vl["ES_DashStatus"]['Cruise_Disengaged']    
     
     
