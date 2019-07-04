@@ -98,16 +98,16 @@ class CarController(object):
       #Eyesight ACC begins to time out after 3 seconds if resume not sent. Send resume for 10 messages.
       if CS.standstill and CS.acc_active and ((self.current_time - self.standstill_time) > 1.1):
         if self.resumecounter < 5:
-          resume = 1
+          self.resume = 1
           self.resumecounter = self.resumecounter + 1
         else: #Messages sent, reset clock and counter
           self.standstill_time = sec_since_boot()
           self.resumecounter = 0
-          resume = 0
+          self.resume = 0
       else:
-        resume = CS.cruise_buttons_resume
+        self.resume = CS.cruise_buttons_resume
       
-      can_sends.append(subarucan.create_cruise_buttons(self.packer, CS.CP.carFingerprint, resume, frame, P.STEER_STEP, CS.cruise_buttons_Signal1, CS.cruise_buttons_Signal2, CS.cruise_buttons_Main, CS.cruise_buttons_set))
+      can_sends.append(subarucan.create_cruise_buttons(self.packer, CS.CP.carFingerprint, self.resume, frame, P.STEER_STEP, CS.cruise_buttons_Signal1, CS.cruise_buttons_Signal2, CS.cruise_buttons_Main, CS.cruise_buttons_set))
 
 
     # generate 1Hz op_active msg for global to enable panda es filtering
