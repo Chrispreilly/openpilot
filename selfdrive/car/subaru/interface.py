@@ -53,7 +53,7 @@ class CarInterface(object):
 
     ret.steerRateCost = 0.7
 
-    if candidate in [CAR.IMPREZA]:
+    if False #candidate in [CAR.IMPREZA]:
       ret.mass = 1568. + STD_CARGO_KG
       ret.wheelbase = 2.67
       ret.centerToFront = ret.wheelbase * 0.5
@@ -67,7 +67,7 @@ class CarInterface(object):
       ret.steerMaxV = [1.]
       
       #start crosstrek with imprezza values
-    if candidate == CAR.CROSSTREK:
+    if candidate in [CAR.IMPREZA, CAR.CROSSTREK]#== CAR.CROSSTREK:
       ret.mass = 1412. + STD_CARGO_KG
       ret.wheelbase = 2.66
       ret.centerToFront = ret.wheelbase * 0.4
