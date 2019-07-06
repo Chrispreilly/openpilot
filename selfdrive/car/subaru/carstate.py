@@ -162,7 +162,7 @@ class CarState(object):
     self.steer_override = abs(self.steer_torque_driver) > STEER_THRESHOLD[self.car_fingerprint]
     self.angle_steers = cp.vl["Steering_Torque"]['Steering_Angle']
     can_gear = int(cp.vl["Transmission"]['Gear'])
-    self.gear_shifter = parse_gear_shifter(can_gear, self.shifter_values)
+    #self.gear_shifter = parse_gear_shifter(can_gear, self.shifter_values)
     self.door_open = any([cp.vl["BodyInfo"]['DOOR_OPEN_RR'],
       cp.vl["BodyInfo"]['DOOR_OPEN_RL'],
       cp.vl["BodyInfo"]['DOOR_OPEN_FR'],
