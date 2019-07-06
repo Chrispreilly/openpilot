@@ -1,7 +1,7 @@
 import copy
 from common.kalman.simple_kalman import KF1D
 from selfdrive.config import Conversions as CV
-from selfdrive.can.parser import CANParser, CANDefine
+from selfdrive.can.parser import CANParser#, CANDefine
 from selfdrive.car.subaru.values import DBC, STEER_THRESHOLD
 
 def parse_gear_shifter(gear, vals):
@@ -97,7 +97,7 @@ class CarState(object):
   def __init__(self, CP):
     # initialize can parser
     self.CP = CP
-    self.can_define = CANDefine(DBC[CP.carFingerprint]['pt'])
+    #self.can_define = CANDefine(DBC[CP.carFingerprint]['pt'])
     self.shifter_values = self.can_define.dv["Transmission"]['Gear']
 
     self.car_fingerprint = CP.carFingerprint
