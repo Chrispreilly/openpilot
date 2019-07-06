@@ -6,14 +6,19 @@ from selfdrive.controls.lib.drive_helpers import create_event, EventTypes as ET
 from selfdrive.controls.lib.vehicle_model import VehicleModel
 from selfdrive.car.subaru.values import CAR
 from selfdrive.car.subaru.carstate import CarState, get_powertrain_can_parser, get_camera_can_parser
-from selfdrive.car import STD_CARGO_KG
+
+try:
+  from selfdrive.car.subaru.carcontroller import CarController
+except ImportError:
+  CarController = None
 
 
 class CarInterface(object):
-  def __init__(self, CP, CarController):
+  def __init__(self, CP, sendcan=None):
     self.CP = CP
 
     self.frame = 0
+    self.can_invalid_count = 0
     self.acc_active_prev = 0
     self.gas_pressed_prev = False
 
@@ -25,8 +30,9 @@ class CarInterface(object):
 
     self.gas_pressed_prev = False
 
-    self.CC = None
-    if CarController is not None:
+    # sending if read only is False
+    if sendcan is not None:
+      self.sendcan = sendcan
       self.CC = CarController(CP.carFingerprint)
 
   @staticmethod
@@ -38,23 +44,23 @@ class CarInterface(object):
     return 1.0
 
   @staticmethod
-  def get_params(candidate, fingerprint, vin=""):
+  def get_params(candidate, fingerprint):
     ret = car.CarParams.new_message()
 
     ret.carName = "subaru"
     ret.carFingerprint = candidate
-    ret.carVin = vin
-    ret.safetyModel = car.CarParams.SafetyModel.subaru
+    ret.safetyModel = car.CarParams.SafetyModels.subaru
 
     ret.enableCruise = True
     ret.steerLimitAlert = True
 
     ret.enableCamera = True
 
+    std_cargo = 136
     ret.steerRateCost = 0.7
 
-    if candidate in [CAR.IMPREZA]:
-      ret.mass = 1568. + STD_CARGO_KG
+    if candidate == CAR.IMPREZA:
+      ret.mass = 1568 + std_cargo
       ret.wheelbase = 2.67
       ret.centerToFront = ret.wheelbase * 0.5
       ret.steerRatio = 15
@@ -63,6 +69,20 @@ class CarInterface(object):
       ret.lateralTuning.pid.kf = 0.00005
       ret.lateralTuning.pid.kiBP, ret.lateralTuning.pid.kpBP = [[0., 20.], [0., 20.]]
       ret.lateralTuning.pid.kpV, ret.lateralTuning.pid.kiV = [[0.2, 0.3], [0.02, 0.03]]
+      ret.steerMaxBP = [0.] # m/s
+      ret.steerMaxV = [1.]
+      
+      #start crosstrek with imprezza values
+    if candidate == CAR.CROSSTREK:
+      ret.mass = 1412 + std_cargo
+      ret.wheelbase = 2.66
+      ret.centerToFront = ret.wheelbase * 0.4
+      ret.steerRatio = 15
+      tire_stiffness_factor = 1.0
+      ret.steerActuatorDelay = 0.4   # end-to-end angle controller
+      ret.lateralTuning.pid.kf = 0.00005
+      ret.lateralTuning.pid.kiBP, ret.lateralTuning.pid.kpBP = [[0., 20., 30.], [0., 10., 20., 30.]]
+      ret.lateralTuning.pid.kpV, ret.lateralTuning.pid.kiV = [[0.05, 0.2, 0.3, 0.4], [0.02, 0.03, 0.04]]
       ret.steerMaxBP = [0.] # m/s
       ret.steerMaxV = [1.]
 
@@ -86,7 +106,7 @@ class CarInterface(object):
 
     # hardcoding honda civic 2016 touring params so they can be used to
     # scale unknown params for other cars
-    mass_civic = 2923. * CV.LB_TO_KG + STD_CARGO_KG
+    mass_civic = 2923./2.205 + std_cargo
     wheelbase_civic = 2.70
     centerToFront_civic = wheelbase_civic * 0.4
     centerToRear_civic = wheelbase_civic - centerToFront_civic
@@ -113,15 +133,13 @@ class CarInterface(object):
 
   # returns a car.CarState
   def update(self, c):
-    can_rcv_valid, _ = self.pt_cp.update(int(sec_since_boot() * 1e9), True)
-    cam_rcv_valid, _ = self.cam_cp.update(int(sec_since_boot() * 1e9), False)
 
+    self.pt_cp.update(int(sec_since_boot() * 1e9), False)
+    self.cam_cp.update(int(sec_since_boot() * 1e9), False)
     self.CS.update(self.pt_cp, self.cam_cp)
 
     # create message
     ret = car.CarState.new_message()
-
-    ret.canValid = can_rcv_valid and cam_rcv_valid and self.pt_cp.can_valid and self.cam_cp.can_valid
 
     # speeds
     ret.vEgo = self.CS.v_ego
@@ -142,8 +160,15 @@ class CarInterface(object):
     ret.steeringPressed = self.CS.steer_override
     ret.steeringTorque = self.CS.steer_torque_driver
 
+    # gear shifter
+    ret.gearShifter = self.CS.gear_shifter
+
+    # gas pedal
     ret.gas = self.CS.pedal_gas / 255.
     ret.gasPressed = self.CS.user_gas_pressed
+
+    # brake lights
+    ret.brakeLights = self.CS.brake_lights
 
     # cruise state
     ret.cruiseState.enabled = bool(self.CS.acc_active)
@@ -177,9 +202,19 @@ class CarInterface(object):
 
 
     events = []
+    if not self.CS.can_valid:
+      self.can_invalid_count += 1
+      if self.can_invalid_count >= 5:
+        events.append(create_event('commIssue', [ET.NO_ENTRY, ET.IMMEDIATE_DISABLE]))
+    else:
+      self.can_invalid_count = 0
+
     if ret.seatbeltUnlatched:
       events.append(create_event('seatbeltNotLatched', [ET.NO_ENTRY, ET.SOFT_DISABLE]))
 
+    if self.CS.steer_error:
+      events.append(create_event('steerUnavailable', [ET.NO_ENTRY, ET.IMMEDIATE_DISABLE, ET.PERMANENT]))
+ 
     if ret.doorOpen:
       events.append(create_event('doorOpen', [ET.NO_ENTRY, ET.SOFT_DISABLE]))
 
@@ -188,12 +223,18 @@ class CarInterface(object):
     if not self.CS.acc_active:
       events.append(create_event('pcmDisable', [ET.USER_DISABLE]))
 
-    # disable on gas pedal rising edge
-    if (ret.gasPressed and not self.gas_pressed_prev):
-      events.append(create_event('pedalPressed', [ET.NO_ENTRY, ET.USER_DISABLE]))
+    # DON'T disable on gas pedal rising edge
+    #if (ret.gasPressed and not self.gas_pressed_prev):
+    #  events.append(create_event('pedalPressed', [ET.NO_ENTRY, ET.USER_DISABLE]))
 
     if ret.gasPressed:
       events.append(create_event('pedalPressed', [ET.PRE_ENABLE]))
+
+    if not ret.gearShifter == 'drive':
+      events.append(create_event('wrongGear', [ET.NO_ENTRY, ET.SOFT_DISABLE]))
+
+    if ret.gearShifter == 'reverse':
+      events.append(create_event('reverseGear', [ET.NO_ENTRY, ET.IMMEDIATE_DISABLE]))
 
     ret.events = events
 
@@ -205,8 +246,7 @@ class CarInterface(object):
     return ret.as_reader()
 
   def apply(self, c):
-    can_sends = self.CC.update(c.enabled, self.CS, self.frame, c.actuators,
-                               c.cruiseControl.cancel, c.hudControl.visualAlert,
-                               c.hudControl.leftLaneVisible, c.hudControl.rightLaneVisible)
+    self.CC.update(self.sendcan, c.enabled, self.CS, self.frame, c.actuators,
+                   c.cruiseControl.cancel, c.hudControl.visualAlert,
+                   c.hudControl.leftLaneVisible, c.hudControl.rightLaneVisible)
     self.frame += 1
-    return can_sends
