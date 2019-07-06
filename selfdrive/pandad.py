@@ -67,7 +67,7 @@ def update_panda():
 
 
 def main(gctx=None):
-  update_panda()
+  #update_panda()
 
   os.chdir("boardd")
   os.execvp("./boardd", ["./boardd"])
