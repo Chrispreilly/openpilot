@@ -53,7 +53,7 @@ class CarInterface(object):
 
     ret.steerRateCost = 0.7
 
-    if False #candidate in [CAR.IMPREZA]:
+    if False: #candidate in [CAR.IMPREZA]:
       ret.mass = 1568. + STD_CARGO_KG
       ret.wheelbase = 2.67
       ret.centerToFront = ret.wheelbase * 0.5
