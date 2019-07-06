@@ -98,7 +98,7 @@ class CarState(object):
     # initialize can parser
     self.CP = CP
     #self.can_define = CANDefine(DBC[CP.carFingerprint]['pt'])
-    self.shifter_values = self.can_define.dv["Transmission"]['Gear']
+    #self.shifter_values = self.can_define.dv["Transmission"]['Gear']
 
     self.car_fingerprint = CP.carFingerprint
     self.left_blinker_on = False
