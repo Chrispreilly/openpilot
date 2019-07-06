@@ -204,8 +204,8 @@ class CarInterface(object):
       events.append(create_event('pcmDisable', [ET.USER_DISABLE]))
 
     # disable on gas pedal rising edge
-    if (ret.gasPressed and not self.gas_pressed_prev):
-      events.append(create_event('pedalPressed', [ET.NO_ENTRY, ET.USER_DISABLE]))
+    #if (ret.gasPressed and not self.gas_pressed_prev):
+    #  events.append(create_event('pedalPressed', [ET.NO_ENTRY, ET.USER_DISABLE]))
 
     if ret.gasPressed:
       events.append(create_event('pedalPressed', [ET.PRE_ENABLE]))
