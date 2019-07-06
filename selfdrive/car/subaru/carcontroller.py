@@ -46,7 +46,7 @@ class CarController(object):
     print(DBC)
     self.packer = CANPacker(DBC[car_fingerprint]['pt'])
 
-  def update(self, sendcan, enabled, CS, frame, actuators, pcm_cancel_cmd, visual_alert, left_line, right_line):
+  def update(self, enabled, CS, frame, actuators, pcm_cancel_cmd, visual_alert, left_line, right_line):
     """ Controls thread """
 
     P = self.params
