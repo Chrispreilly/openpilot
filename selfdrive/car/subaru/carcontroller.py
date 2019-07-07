@@ -89,7 +89,5 @@ class CarController(object):
     if self.es_lkas_cnt != CS.es_lkas_msg["Counter"]:
       can_sends.append(subarucan.create_es_lkas(self.packer, CS.es_lkas_msg, visual_alert, left_line, right_line))
       self.es_lkas_cnt = CS.es_lkas_msg["Counter"]
-
-      
+ 
     return can_sends 
-    #sendcan.send(can_list_to_can_capnp(can_sends, msgtype='sendcan'))
