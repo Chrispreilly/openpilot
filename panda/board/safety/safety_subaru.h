@@ -17,7 +17,7 @@ int subaru_op_active = 0;
 
 static void subaru_init(int16_t param) {
   #ifdef PANDA
-    lline_relay_init();
+    //lline_relay_init();
   #endif
 }
 
