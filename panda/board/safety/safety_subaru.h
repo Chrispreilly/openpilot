@@ -20,7 +20,7 @@ static void subaru_rx_hook(CAN_FIFOMailBox_TypeDef *to_push) {
   int bus = GET_BUS(to_push);
   int addr = GET_ADDR(to_push);
 
-  if ((addr == 0x119 || addr == 0x371) && (bus_num == 0)){
+  if ((addr == 0x119 || addr == 0x371) && (bus == 0)){
     int bit_shift = (addr == 0x119) ? 16 : 29;
     int torque_driver_new = ((to_push->RDLR >> bit_shift) & 0x7FF);
     torque_driver_new = to_signed(torque_driver_new, 11);
@@ -29,7 +29,7 @@ static void subaru_rx_hook(CAN_FIFOMailBox_TypeDef *to_push) {
   }
 
   // enter controls on rising edge of ACC, exit controls on ACC off
-  if ((addr == 0x240 || addr == 0x144) && (bus_num == 0)) {
+  if ((addr == 0x240 || addr == 0x144) && (bus == 0)) {
     int bit_shift = (addr == 0x240) ? 9 : 17;
     int cruise_engaged = (to_push->RDHR >> bit_shift) & 1;
     if (cruise_engaged && !subaru_cruise_engaged_last) {
