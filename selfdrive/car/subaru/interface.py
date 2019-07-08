@@ -70,7 +70,7 @@ class CarInterface(object):
     if candidate in [CAR.IMPREZA, CAR.CROSSTREK]: #== CAR.CROSSTREK:
       ret.mass = 1412. + STD_CARGO_KG
       ret.wheelbase = 2.66
-      ret.centerToFront = ret.wheelbase * 0.4
+      ret.centerToFront = ret.wheelbase * 0.5
       ret.steerRatio = 15
       tire_stiffness_factor = 1.0
       ret.steerActuatorDelay = 0.4   # end-to-end angle controller
