@@ -162,7 +162,7 @@ class CarInterface(object):
 
     # cruise state
     if (self.CS.acc_active == True and self.CS.es_lkas_allowed == True):
-      ret.cruiseState.enabled = True
+      ret.cruiseState.enabled = False #True
     else:
       ret.cruiseState.enabled = False
     ret.cruiseState.speed = self.CS.v_cruise_pcm * CV.KPH_TO_MS
