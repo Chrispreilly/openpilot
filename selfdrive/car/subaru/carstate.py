@@ -85,7 +85,6 @@ def get_camera_can_parser(CP):
     ("Right_Depart", "ES_LKAS_State", 0),
     ("Signal5", "ES_LKAS_State", 0),
     ("ES_Output", "ES_LKAS", 0),
-    ("LKAS_ENABLE_2", "ES_LKAS_State", 0),
 
   ]
 
