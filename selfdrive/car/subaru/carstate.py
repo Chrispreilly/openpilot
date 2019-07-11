@@ -175,6 +175,6 @@ class CarState(object):
     # steer command from eyesight
     self.es_lkas_output = cp_cam.vl["ES_LKAS"]['LKAS_Output']
     # eyesight LKAS
-    self.es_lkas_active = cp_cam.vl["ES_LKAS_State"]['LKAS_ENABLE_2'] == 1
+    #self.es_lkas_active = cp_cam.vl["ES_LKAS_State"]['LKAS_ENABLE_2'] == 1
     
     
