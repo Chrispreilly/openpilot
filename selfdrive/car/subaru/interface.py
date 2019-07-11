@@ -162,7 +162,7 @@ class CarInterface(object):
 
     # cruise state
     if (self.CS.acc_active == True and self.CS.es_lkas_allowed == True):
-      ret.cruiseState.enabled = False #True
+      ret.cruiseState.enabled = True
     else:
       ret.cruiseState.enabled = False
     ret.cruiseState.speed = self.CS.v_cruise_pcm * CV.KPH_TO_MS
@@ -201,9 +201,9 @@ class CarInterface(object):
     if ret.doorOpen:
       events.append(create_event('doorOpen', [ET.NO_ENTRY, ET.SOFT_DISABLE]))
 
-    if self.CS.acc_active and not self.acc_active_prev:
+    if self.CS.acc_active and not self.acc_active_prev and self.CS.es_lkas_allowed:
       events.append(create_event('pcmEnable', [ET.ENABLE]))
-    if not self.CS.acc_active:
+    if not self.CS.acc_active or not self.CS.es_lkas_allowed:
       events.append(create_event('pcmDisable', [ET.USER_DISABLE]))
 
     # disable on gas pedal rising edge
