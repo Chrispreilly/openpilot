@@ -170,3 +170,6 @@ class CarState(object):
 
     self.es_distance_msg = copy.copy(cp_cam.vl["ES_Distance"])
     self.es_lkas_msg = copy.copy(cp_cam.vl["ES_LKAS_State"])
+    
+    #steer command from eyesight
+    self.es_lkas_output = cp_cam.vl["ES_LKAS"]['LKAS_Output']
