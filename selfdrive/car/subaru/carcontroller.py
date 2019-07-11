@@ -72,8 +72,8 @@ class CarController(object):
         apply_steer = 0
         
       # If eyesight LKAS active, override OP torque command with eyesight  
-      if CS.es_lkas_active:
-        apply_steer = CS.es_lkas_output
+      #if CS.es_lkas_active:
+        #apply_steer = CS.es_lkas_output
 
       can_sends.append(subarucan.create_steering_control(self.packer, CS.CP.carFingerprint, apply_steer, frame, P.STEER_STEP))
 
