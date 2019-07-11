@@ -161,7 +161,10 @@ class CarInterface(object):
     ret.gasPressed = self.CS.user_gas_pressed
 
     # cruise state
-    ret.cruiseState.enabled = self.CS.acc_active == True and self.CS.es_lkas_allowed == True
+    if (self.CS.acc_active == True and self.CS.es_lkas_allowed == True):
+      ret.cruiseState.enabled = True
+    else:
+      ret.cruiseState.enabled = False
     ret.cruiseState.speed = self.CS.v_cruise_pcm * CV.KPH_TO_MS
     ret.cruiseState.available = bool(self.CS.main_on)
     ret.cruiseState.speedOffset = 0.
