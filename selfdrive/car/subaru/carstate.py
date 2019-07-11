@@ -84,7 +84,7 @@ def get_camera_can_parser(CP):
     ("Traffic_light_Ahead", "ES_LKAS_State", 0),
     ("Right_Depart", "ES_LKAS_State", 0),
     ("Signal5", "ES_LKAS_State", 0),
-    ("ES_Output", "ES_LKAS", 0),
+    #("ES_Output", "ES_LKAS", 0),
 
   ]
 
