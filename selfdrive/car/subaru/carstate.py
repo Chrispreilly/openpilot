@@ -55,7 +55,7 @@ def get_powertrain_can_parser(CP):
 def get_camera_can_parser(CP):
   signals = [
     ("Cruise_Set_Speed", "ES_DashStatus", 0),
-    ("Car_Follow", "ES_DashStatus", 0),
+    ("ACC_Distance", "ES_DashStatus", 0),
 
     ("Counter", "ES_Distance", 0),
     ("Signal1", "ES_Distance", 0),
@@ -176,10 +176,10 @@ class CarState(object):
     # steer command from eyesight
     #self.es_lkas_output = cp_cam.vl["ES_LKAS"]['LKAS_Output']
     # eyesight LKAS
-    self.es_lkas_allowed = cp_cam.vl["ES_DashStatus"]['Car_Follow']
+    self.es_lkas_allowed = bool(cp_cam.vl["ES_DashStatus"]['ACC_Distance'] == 3)
 
     
-    if (self.cruise_active and (self.es_lkas_allowed > 2)):
+    if (self.cruise_active and self.es_lkas_allowed):
       self.acc_active = True
     else: 
       self.acc_active = False
