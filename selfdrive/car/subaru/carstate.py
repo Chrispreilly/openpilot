@@ -176,7 +176,7 @@ class CarState(object):
     # steer command from eyesight
     #self.es_lkas_output = cp_cam.vl["ES_LKAS"]['LKAS_Output']
     # eyesight LKAS
-    self.es_lkas_allowed = bool(cp_cam.vl["ES_DashStatus"]['ACC_Distance'] == 3)
+    self.es_lkas_allowed = bool(cp_cam.vl["ES_DashStatus"]['ACC_Distance'] in [1, 3])
 
     
     if (self.cruise_active and self.es_lkas_allowed):
