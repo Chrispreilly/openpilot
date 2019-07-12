@@ -178,7 +178,7 @@ class CarState(object):
     # eyesight LKAS
     self.es_lkas_allowed = cp_cam.vl["ES_DashStatus"]['Car_Follow'] == 3
     
-    if (self.cruise_active and self.es_lkas_allowed):
+    if (self.cruise_active): # and self.es_lkas_allowed):
       self.acc_active = True
     else: 
       self.acc_active = False
