@@ -158,7 +158,7 @@ class CarState(object):
     self.right_blinker_on = cp.vl["Dashlights"]['RIGHT_BLINKER'] == 1
     self.seatbelt_unlatched = cp.vl["Dashlights"]['SEATBELT_FL'] == 1
     self.steer_torque_driver = cp.vl["Steering_Torque"]['Steer_Torque_Sensor']
-    self.acc_active = ((cp.vl["CruiseControl"]['Cruise_Activated'] == 1) and (cp_cam.vl["ES_DashStatus"]['Car_Follow'] == 3))
+    self.cruise_active = bool(cp.vl["CruiseControl"]['Cruise_Activated'])
     self.main_on = cp.vl["CruiseControl"]['Cruise_On']
     self.steer_override = abs(self.steer_torque_driver) > STEER_THRESHOLD[self.car_fingerprint]
     self.angle_steers = cp.vl["Steering_Torque"]['Steering_Angle']
@@ -176,6 +176,9 @@ class CarState(object):
     # steer command from eyesight
     #self.es_lkas_output = cp_cam.vl["ES_LKAS"]['LKAS_Output']
     # eyesight LKAS
-    #self.es_lkas_allowed = cp_cam.vl["ES_DashStatus"]['Car_Follow'] == 3
+    self.es_lkas_allowed = cp_cam.vl["ES_DashStatus"]['Car_Follow'] == 3
     
-    
+    if (self.cruise_active and self.es_lkas_allowed):
+      self.acc_active = True
+    else: 
+      self.acc_active = False
