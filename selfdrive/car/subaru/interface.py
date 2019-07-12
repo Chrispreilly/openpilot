@@ -200,7 +200,7 @@ class CarInterface(object):
 
     if self.CS.acc_active and not self.acc_active_prev:
       events.append(create_event('pcmEnable', [ET.ENABLE]))
-    if not self.CS.acc_active::
+    if not self.CS.acc_active:
       events.append(create_event('pcmDisable', [ET.USER_DISABLE]))
 
     # disable on gas pedal rising edge
