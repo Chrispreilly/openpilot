@@ -43,8 +43,8 @@ static void subaru_rx_hook(CAN_FIFOMailBox_TypeDef *to_push) {
 static int subaru_tx_hook(CAN_FIFOMailBox_TypeDef *to_send) {
   int tx = 1;
   int addr = GET_ADDR(to_send);
-  
-    // subaru_op_active presence check
+
+  // subaru_op_active presence check
   if (addr == 0x100) {
     subaru_op_active = 1;
   }
@@ -105,19 +105,25 @@ static int subaru_fwd_hook(int bus_num, CAN_FIFOMailBox_TypeDef *to_fwd) {
 
   int bus_fwd = -1;
   if (bus_num == 0) {
-    bus_fwd = 1;  // Camera CAN
+    bus_fwd = 2;  // Camera CAN
   }
-  if (bus_num == 1) {
+  if (bus_num == 2) {
+    // 356 is LKAS for outback 2015
+    // 290 is LKAS for Global Platform
+    // 545 is ES_Distance
+    // 802 is ES_LKAS
+
+    // filter only when subaru_op_active is set
     if (subaru_op_active) {
-      // 356 is LKAS for outback 2015
-      // 356 is LKAS for Global Platform
-      // 545 is ES_Distance
-      // 802 is ES_LKAS
       int addr = GET_ADDR(to_fwd);
       int block_msg = (addr == 290) || (addr == 356) || (addr == 545) || (addr == 802);
+
       if (!block_msg) {
         bus_fwd = 0;  // Main CAN
       }
+
+    } else {
+       bus_fwd = 0; // Main CAN
     }
   }
 
