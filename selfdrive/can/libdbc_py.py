@@ -41,6 +41,8 @@ typedef enum {
   TOYOTA_CHECKSUM,
   PEDAL_CHECKSUM,
   PEDAL_COUNTER,
+  VOLKSWAGEN_CHECKSUM,
+  VOLKSWAGEN_COUNTER,
 } SignalType;
 
 typedef struct {
@@ -82,7 +84,7 @@ void* can_init(int bus, const char* dbc_name,
 
 int can_update(void* can, uint64_t sec, bool wait);
 
-size_t can_query(void* can, uint64_t sec, bool *out_can_valid, size_t out_values_size, SignalValue* out_values);
+size_t can_query_latest(void* can, bool *out_can_valid, size_t out_values_size, SignalValue* out_values);
 
 const DBC* dbc_lookup(const char* dbc_name);
 
