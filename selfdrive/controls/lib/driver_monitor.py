@@ -200,15 +200,15 @@ class DriverStatus():
       self.awareness = max(self.awareness - self.step_change, -0.1)
 
     alert = None
-    if self.awareness <= 0.:
+    #if self.awareness <= 0.:
       # terminal red alert: disengagement required
-      alert = 'driverDistracted' if self.active_monitoring_mode else 'driverUnresponsive'
-      if awareness_prev > 0.:
-        self.terminal_alert_cnt += 1
-    elif self.awareness <= self.threshold_prompt:
+    #  alert = 'driverDistracted' if self.active_monitoring_mode else 'driverUnresponsive'
+    #  if awareness_prev > 0.:
+    #    self.terminal_alert_cnt += 1
+    #elif self.awareness <= self.threshold_prompt:
       # prompt orange alert
-      alert = 'promptDriverDistracted' if self.active_monitoring_mode else 'promptDriverUnresponsive'
-    elif self.awareness <= self.threshold_pre:
+    #  alert = 'promptDriverDistracted' if self.active_monitoring_mode else 'promptDriverUnresponsive'
+    if self.awareness <= self.threshold_pre:
       # pre green alert
       alert = 'preDriverDistracted' if self.active_monitoring_mode else 'preDriverUnresponsive'
 
