@@ -15,21 +15,22 @@ uint32_t subaru_ts_last = 0;
 struct sample_t subaru_torque_driver;         // last few driver torques measured
 int subaru_op_active = 0;
 
-
 static void subaru_rx_hook(CAN_FIFOMailBox_TypeDef *to_push) {
   int bus = GET_BUS(to_push);
   int addr = GET_ADDR(to_push);
 
-  if ((addr == 0x119) && (bus == 0)){
-    int torque_driver_new = ((GET_BYTES_04(to_push) >> 16) & 0x7FF);
+  if (((addr == 0x119) || (addr == 0x371)) && (bus == 0)){
+    int bit_shift = (addr == 0x119) ? 16 : 29;
+    int torque_driver_new = ((GET_BYTES_04(to_push) >> bit_shift) & 0x7FF);
     torque_driver_new = to_signed(torque_driver_new, 11);
     // update array of samples
     update_sample(&subaru_torque_driver, torque_driver_new);
   }
 
   // enter controls on rising edge of ACC, exit controls on ACC off
-  if ((addr == 0x240) && (bus == 0)) {
-    int cruise_engaged = GET_BYTE(to_push, 5) & 2;
+  if (((addr == 0x240) || (addr == 0x144)) && (bus == 0)) {
+    int bit_shift = (addr == 0x240) ? 9 : 17;
+    int cruise_engaged = ((GET_BYTES_48(to_push) >> bit_shift) & 1);
     if (cruise_engaged && !subaru_cruise_engaged_last) {
       controls_allowed = 1;
     }
@@ -50,8 +51,9 @@ static int subaru_tx_hook(CAN_FIFOMailBox_TypeDef *to_send) {
   }
 
   // steer cmd checks
-  if (addr == 0x122) {
-    int desired_torque = ((GET_BYTES_04(to_send) >> 16) & 0x1FFF);
+  if ((addr == 0x122) || (addr == 0x164)) {
+    int bit_shift = (addr == 0x122) ? 16 : 8;
+    int desired_torque = ((GET_BYTES_04(to_send) >> bit_shift) & 0x1FFF);
     bool violation = 0;
     uint32_t ts = TIM2->CNT;
     desired_torque = to_signed(desired_torque, 13);
@@ -107,9 +109,15 @@ static int subaru_fwd_hook(int bus_num, CAN_FIFOMailBox_TypeDef *to_fwd) {
   if (bus_num == 0) {
     bus_fwd = 1;  // Camera CAN
   }
+
   if (bus_num == 1) {
     // 356 is LKAS for outback 2015
     // 290 is LKAS for Global Platform
+
+//  if (bus_num == 2) {
+    // 290 is LKAS for Global Platform
+    // 356 is LKAS for outback 2015
+
     // 545 is ES_Distance
     // 802 is ES_LKAS
 
