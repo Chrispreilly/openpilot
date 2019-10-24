@@ -28,7 +28,7 @@ class CarControllerParams():
       self.STEER_DRIVER_MULTIPLIER = 10   # weight driver torque heavily
       self.STEER_DRIVER_FACTOR = 1     # from dbc
 
-class CarController(object):
+class CarController():
   def __init__(self, car_fingerprint):
     self.start_time = sec_since_boot()
     self.lkas_active = False
