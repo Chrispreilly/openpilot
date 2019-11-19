@@ -358,7 +358,7 @@ def manager_thread():
     if msg.thermal.freeSpace < 0.05:
       logger_dead = True
       
-    #keep warm logic
+    #keep warm logic - turn on visiond here
     if msg.thermal.bat/1000 < 10 and not msg.thermal.started:
       start_managed_process("visiond")
     elif msg.thermal.bat/1000 > 12 and not msg.thermal.started:
@@ -373,7 +373,11 @@ def manager_thread():
     else:
       logger_dead = False
       for p in car_started_processes:
-        kill_managed_process(p)
+        if p == "visiond" and msg.thermal.bat/1000 < 12:
+          break
+        else:
+          kill_managed_process(p)
+        
 
     # check the status of all processes, did any of them die?
     running_list = ["   running %s %s" % (p, running[p]) for p in running]
