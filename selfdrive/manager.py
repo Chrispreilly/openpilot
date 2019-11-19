@@ -362,7 +362,7 @@ def manager_thread():
     #keep warm logic
     if thermal_status_cold and not msg.thermal.started:
       start_managed_process("visiond")
-    else if not thermal_status_cold and not msg.thermal.started:
+    elif not thermal_status_cold and not msg.thermal.started:
       kill_managed_process("visiond")
 
     if msg.thermal.started:
