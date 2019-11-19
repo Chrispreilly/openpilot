@@ -132,6 +132,7 @@ def thermald_thread():
   started_seen = False
   thermal_status = ThermalStatus.green
   thermal_status_prev = ThermalStatus.green
+  thermal_status_cold = ThermalStatus.green
   usb_power = True
   usb_power_prev = True
   health_sock.RCVTIMEO = int(1000 * 2 * DT_TRML)  # 2x the expected health frequency
@@ -200,6 +201,12 @@ def thermald_thread():
     else:
       # all good
       thermal_status = ThermalStatus.green
+      
+    #thermal logic for keep warm when less than 5 degrees
+    if bat_temp <= 5.:
+      thermal_status_cold = ThermalStatus.danger
+    if bat_temp >= 10.:
+      thermal_status_cold = ThermalStatus.green
 
     # **** starting logic ****
 
