@@ -7,6 +7,7 @@ import signal
 import subprocess
 import datetime
 from common.spinner import Spinner
+from selfdrive.thermald import thermal_status_cold
 
 from common.basedir import BASEDIR
 sys.path.append(os.path.join(BASEDIR, "pyextra"))
@@ -357,6 +358,12 @@ def manager_thread():
 
     if msg.thermal.freeSpace < 0.05:
       logger_dead = True
+      
+    #keep warm logic
+    if thermal_status_cold and not msg.thermal.started:
+      start_managed_process("visiond")
+    else if not thermal_status_cold and not msg.thermal.started:
+      kill_managed_process("visiond")
 
     if msg.thermal.started:
       for p in car_started_processes:
