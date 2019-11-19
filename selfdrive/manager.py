@@ -359,9 +359,9 @@ def manager_thread():
       logger_dead = True
       
     #keep warm logic
-    if msg.thermal.bat/1000 < 5 and not msg.thermal.started:
+    if msg.thermal.bat/1000 < 10 and not msg.thermal.started:
       start_managed_process("visiond")
-    elif msg.thermal.bat/1000 > 10 and not msg.thermal.started:
+    elif msg.thermal.bat/1000 > 12 and not msg.thermal.started:
       kill_managed_process("visiond")
 
     if msg.thermal.started:
