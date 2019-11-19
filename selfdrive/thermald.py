@@ -202,11 +202,11 @@ def thermald_thread():
       # all good
       thermal_status = ThermalStatus.green
       
-    #thermal logic for keep warm when less than 5 degrees
+    # thermal logic for keep warm when less than 5 degrees
     if bat_temp <= 5.:
-      thermal_status_cold = ThermalStatus.danger
+      thermal_status_cold = True
     if bat_temp >= 10.:
-      thermal_status_cold = ThermalStatus.green
+      thermal_status_cold = False
 
     # **** starting logic ****
 
