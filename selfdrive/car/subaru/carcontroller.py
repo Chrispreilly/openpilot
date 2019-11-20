@@ -3,7 +3,7 @@ from common.realtime import sec_since_boot
 from selfdrive.boardd.boardd import can_list_to_can_capnp
 from selfdrive.car import apply_std_steer_torque_limits
 from selfdrive.car.subaru import subarucan
-from selfdrive.car.subaru.values import CAR, DBC
+from selfdrive.car.subaru.values import DBC
 from selfdrive.can.packer import CANPacker
 
 
@@ -43,7 +43,6 @@ class CarController():
     # Setup detection helper. Routes commands to
     # an appropriate CAN bus number.
     self.params = CarControllerParams(car_fingerprint)
-    print(DBC)
     self.packer = CANPacker(DBC[car_fingerprint]['pt'])
 
   def update(self, enabled, CS, frame, actuators, pcm_cancel_cmd, visual_alert, left_line, right_line):
