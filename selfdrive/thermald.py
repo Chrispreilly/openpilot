@@ -140,6 +140,9 @@ def thermald_thread():
   current_connectivity_alert = None
 
   params = Params()
+    
+  #init charging to true
+  charging_disabled = False
 
   while 1:
     health = messaging.recv_sock(health_sock, wait=True)
@@ -274,6 +277,17 @@ def thermald_thread():
       if msg.thermal.batteryPercent < BATT_PERC_OFF and msg.thermal.batteryStatus == "Discharging" and \
          started_seen and (sec_since_boot() - off_ts) > 60:
         os.system('LD_LIBRARY_PATH="" svc power shutdown')
+
+      # Charging cycling between 60-80%
+    if charging_disabled and msg.thermal.batteryPercent < 60:
+      charging_disabled = False
+      os.system("echo 1 > /sys/class/power_supply/battery/charging_enabled")
+    elif not charging_disabled and msg.thermal.batteryPercent > 80:
+      charging_disabled = True
+      os.system("echo 0 > /sys/class/power_supply/battery/charging_enabled")
+    msg.thermal.chargingDisabled = charging_disabled
+      
+        
 
     msg.thermal.chargingError = current_filter.x > 0. and msg.thermal.batteryPercent < 90  # if current is positive, then battery is being discharged
     msg.thermal.started = started_ts is not None
