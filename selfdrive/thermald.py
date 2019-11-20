@@ -281,10 +281,10 @@ def thermald_thread():
       # Charging cycling between 60-80%
     if charging_disabled and msg.thermal.batteryPercent < 60:
       charging_disabled = False
-      os.system('echo "1" > /sys/class/power_supply/battery/charging_enabled')
+      os.system("echo 1 > /sys/class/power_supply/battery/charging_enabled")
     elif not charging_disabled and msg.thermal.batteryPercent > 80:
       charging_disabled = True
-      os.system('echo "0" > /sys/class/power_supply/battery/charging_enabled')
+      os.system("echo 0 > /sys/class/power_supply/battery/charging_enabled")
     msg.thermal.chargingDisabled = charging_disabled
       
         
