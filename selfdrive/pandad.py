@@ -76,9 +76,8 @@ def update_panda():
 
 
 def main(gctx=None):
-  #update_panda()
+  update_panda()
 
-  signed_fn = os.path.join(BASEDIR, "board", "obj", "panda.bin.signed")
 
   os.chdir("boardd")
   os.execvp("./boardd", ["./boardd"])
