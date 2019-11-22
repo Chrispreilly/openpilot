@@ -12,10 +12,10 @@ factor = op_params.get('awareness_factor', 10.0)
 if travis:
   factor = 1.0
   
-_AWARENESS_TIME = 100. * factor  # 1.6 minutes limit without user touching steering wheels make the car enter a terminal status
+_AWARENESS_TIME = 100000. * factor  # 1.6 minutes limit without user touching steering wheels make the car enter a terminal status
 _AWARENESS_PRE_TIME_TILL_TERMINAL = 25. * factor  # a first alert is issued 25s before expiration
 _AWARENESS_PROMPT_TIME_TILL_TERMINAL = 15. * factor  # a second alert is issued 15s before start decelerating the car
-_DISTRACTED_TIME = 11. * factor
+_DISTRACTED_TIME = 11000. * factor
 _DISTRACTED_PRE_TIME_TILL_TERMINAL = 8. * factor
 _DISTRACTED_PROMPT_TIME_TILL_TERMINAL = 6. * factor
 
