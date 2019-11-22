@@ -47,7 +47,7 @@ def update_panda():
   current_version = panda.get_version() # "bootstub" if panda.bootstub else panda.get_version()
   cloudlog.warning("Panda %s connected, version: %s, expected %s" % (serial, current_version, repo_version))
 
-  if panda.bootstub or not current_version.startswith(repo_version):
+  if panda.bootstub: #or not current_version.startswith(repo_version):
     cloudlog.info("Panda firmware out of date, update required")
 
     signed_fn = os.path.join(BASEDIR, "board", "obj", "panda.bin.signed")
