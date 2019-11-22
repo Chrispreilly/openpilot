@@ -44,7 +44,7 @@ def update_panda():
     serial = panda.get_serial()[0].decode("utf-8")
   except Exception:
     serial = None
-  current_version = panda.get_version() # "bootstub" if panda.bootstub else panda.get_version()
+  current_version = "bootstub" if panda.bootstub else panda.get_version()
   cloudlog.warning("Panda %s connected, version: %s, expected %s" % (serial, current_version, repo_version))
 
   if panda.bootstub: #or not current_version.startswith(repo_version):
@@ -70,9 +70,9 @@ def update_panda():
     raise AssertionError
 
   version = panda.get_version()
-  #if not version.startswith(repo_version):
-    #cloudlog.info("Version mismatch after flashing, exiting")
-    #raise AssertionError
+  if not version.startswith(repo_version):
+    cloudlog.info("Version mismatch after flashing, exiting")
+    raise AssertionError
 
 
 def main(gctx=None):
