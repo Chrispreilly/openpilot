@@ -44,7 +44,7 @@ def update_panda():
     serial = panda.get_serial()[0].decode("utf-8")
   except Exception:
     serial = None
-  current_version = "bootstub" if panda.bootstub else panda.get_version()
+  current_version = panda.get_version() # "bootstub" if panda.bootstub else panda.get_version()
   cloudlog.warning("Panda %s connected, version: %s, expected %s" % (serial, current_version, repo_version))
 
   if panda.bootstub or not current_version.startswith(repo_version):
