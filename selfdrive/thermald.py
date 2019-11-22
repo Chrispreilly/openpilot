@@ -283,7 +283,7 @@ def thermald_thread():
     if fw_version_match and not fw_version_match_prev:
       params.delete("Offroad_PandaFirmwareMismatch")
     if not fw_version_match and fw_version_match_prev:
-      params.put("Offroad_PandaFirmwareMismatch", json.dumps(OFFROAD_ALERTS["Offroad_PandaFirmwareMismatch"]))
+      params.delete("Offroad_PandaFirmwareMismatch") #params.put("Offroad_PandaFirmwareMismatch", json.dumps(OFFROAD_ALERTS["Offroad_PandaFirmwareMismatch"]))
 
     # if any CPU gets above 107 or the battery gets above 63, kill all processes
     # controls will warn with CPU above 95 or battery above 60
