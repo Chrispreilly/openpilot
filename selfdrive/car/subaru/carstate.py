@@ -93,7 +93,7 @@ def get_camera_can_parser(CP):
     ("ES_DashStatus", 10),
   ]
 
-  return CANParser(DBC[CP.carFingerprint]['pt'], signals, checks, 1, timeout=100)
+  return CANParser(DBC[CP.carFingerprint]['pt'], signals, checks, 1)
 
 class CarState():
   def __init__(self, CP):
@@ -141,7 +141,7 @@ class CarState():
       self.v_cruise_pcm *= CV.MPH_TO_KPH
 
     v_wheel = (self.v_wheel_fl + self.v_wheel_fr + self.v_wheel_rl + self.v_wheel_rr) / 4.
-    # Kalman filter, even though Hyundai raw wheel speed is heaviliy filtered by default
+    # Kalman filter, even though Subaru raw wheel speed is heaviliy filtered by default
     if abs(v_wheel - self.v_ego) > 2.0:  # Prevent large accelerations when car starts at non zero speed
       self.v_ego_kf.x = [[v_wheel], [0.0]]
 
