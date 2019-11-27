@@ -271,6 +271,8 @@ struct ThermalData {
 
   # not thermal
   freeSpace @7 :Float32;
+  uploadSpeed @19 :Float32;
+  uploadTime @20 :Float32;
   batteryPercent @8 :Int16;
   batteryStatus @9 :Text;
   batteryCurrent @15 :Int32;
