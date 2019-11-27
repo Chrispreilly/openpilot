@@ -23,11 +23,6 @@ CURRENT_TAU = 15.   # 15s time constant
 DAYS_NO_CONNECTIVITY_MAX = 7  # do not allow to engage after a week without internet
 DAYS_NO_CONNECTIVITY_PROMPT = 4  # send an offroad prompt after 4 days with no internet
 
-  
-current_tx_time = 1.0
-last_tx_time = 1.0
-tx_bytes = 1.0
-last_tx_bytes = 1.0
 
 with open(BASEDIR + "/selfdrive/controls/lib/alerts_offroad.json") as json_file:
   OFFROAD_ALERTS = json.load(json_file)
@@ -159,6 +154,11 @@ def thermald_thread():
   #init charging to true
   charging_disabled = False
 
+    
+  current_tx_time = 1.0
+  last_tx_time = 1.0
+  tx_bytes = 1.0
+  last_tx_bytes = 1.0
 
   while 1:
     health = messaging.recv_sock(health_sock, wait=True)
