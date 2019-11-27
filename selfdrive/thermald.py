@@ -337,7 +337,8 @@ def thermald_thread():
           tx_bytes = int(f.read())
       msg.thermal.uploadKbps = (tx_bytes - last_tx_bytes)/(current_tx_time - last_tx_time) / 1000
       #msg.thermal.uploadTime = msg.thermal.freeSpace # Will add this later
-      
+      last_tx_time = current_tx_time
+      last_tx_bytes = tx_bytes
     
         
 
