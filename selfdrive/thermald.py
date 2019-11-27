@@ -153,6 +153,11 @@ def thermald_thread():
     
   #init charging to true
   charging_disabled = False
+  
+  current_tx_time = 1.0
+  last_tx_time = 1.0
+  tx_bytes = 1.0
+  last_tx_bytes = 1.0
 
   while 1:
     health = messaging.recv_sock(health_sock, wait=True)
@@ -325,6 +330,15 @@ def thermald_thread():
       os.system("echo 0 > /sys/class/power_supply/battery/charging_enabled")
     msg.thermal.chargingDisabled = charging_disabled
       
+      #calculate upload stats
+    current_tx_time = sec_since_boot()
+    if (current_tx_time - last_tx_time) > 1: #check every second
+      with open("/sys/class/power_supply/battery/current_now") as f:
+          tx_bytes = int(f.read())
+      msg.thermal.uploadKbps = (tx_bytes - last_tx_bytes)/(current_tx_time - last_tx_time) / 1000
+      #msg.thermal.uploadTime = msg.thermal.freeSpace # Will add this later
+      
+    
         
 
     msg.thermal.chargingError = current_filter.x > 0. and msg.thermal.batteryPercent < 90  # if current is positive, then battery is being discharged
