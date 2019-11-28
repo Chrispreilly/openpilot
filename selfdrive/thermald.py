@@ -334,7 +334,7 @@ def thermald_thread():
       #calculate upload stats
     current_tx_time = sec_since_boot()
     if (current_tx_time - last_tx_time) > 0.001: #check every second
-      with open("/sys/class/power_supply/battery/current_now") as f:
+      with open("/sys/class/net/wlan0/statistics/tx_bytes") as f:
           tx_bytes = int(f.read())
       msg.thermal.uploadKbps = tx_bytes #(tx_bytes - last_tx_bytes)/(current_tx_time - last_tx_time) / 1000
       #msg.thermal.uploadTime = msg.thermal.freeSpace # Will add this later
