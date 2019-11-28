@@ -377,7 +377,7 @@ def thermald_thread():
       #calculate upload stats
     current_tx_time = sec_since_boot()
     if (current_tx_time - last_tx_time) > 1: #check every 1 seconds
-      uploadKbps = get_upload_speed()
+      uploadKbps = get_upload_rate()
       uploadTime = get_upload_time()
     msg.thermal.uploadKbps = uploadKbps
     msg.thermal.uploadTime = uploadTime
