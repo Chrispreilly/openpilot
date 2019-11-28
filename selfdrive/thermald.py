@@ -119,6 +119,17 @@ def handle_fan_uno(max_cpu_temp, bat_temp, fan_speed):
   # TODO: implement better fan control
   return int(interp(max_cpu_temp, [40.0, 80.0], [0, 100]))
 
+def get_upload_size(start_path = '/data/media/0/realdata/'):
+    total_size = 0
+    for dirpath, dirnames, filenames in os.walk(start_path):
+        for f in filenames:
+            fp = os.path.join(dirpath, f)
+            # skip if it is symbolic link
+            if not os.path.islink(fp):
+                total_size += os.path.getsize(fp)
+
+    return total_size
+
 def thermald_thread():
   setup_eon_fan()
 
@@ -337,7 +348,7 @@ def thermald_thread():
       with open("/sys/class/net/wlan0/statistics/tx_bytes") as f:
           tx_bytes = int(f.read())
       tx_uploadKbps = (tx_bytes - last_tx_bytes)*8/(current_tx_time - last_tx_time) / 1000
-      uploadSize = os.path.getsize("/data/media/0/realdata/*") #msg.thermal.freeSpace # Will add this later
+      uploadSize = get_upload_size()
       last_tx_time = current_tx_time
       last_tx_bytes = tx_bytes
     msg.thermal.uploadKbps = tx_uploadKbps
