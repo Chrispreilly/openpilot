@@ -120,8 +120,6 @@ def handle_fan_uno(max_cpu_temp, bat_temp, fan_speed):
   return int(interp(max_cpu_temp, [40.0, 80.0], [0, 100]))
 
 #upload adders below
-last_tx_time = 0
-last_tx_bytes = 0
 
 def get_upload_rate():
   
