@@ -333,7 +333,7 @@ def thermald_thread():
       
       #calculate upload stats
     current_tx_time = sec_since_boot()
-    if (current_tx_time - last_tx_time) > 1: #check every second
+    if (current_tx_time - last_tx_time) > 0.001: #check every second
       with open("/sys/class/power_supply/battery/current_now") as f:
           tx_bytes = int(f.read())
       msg.thermal.uploadKbps = current_tx_time #(tx_bytes - last_tx_bytes)/(current_tx_time - last_tx_time) / 1000
