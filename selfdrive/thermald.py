@@ -337,11 +337,11 @@ def thermald_thread():
       with open("/sys/class/net/wlan0/statistics/tx_bytes") as f:
           tx_bytes = int(f.read())
       tx_uploadKbps = (tx_bytes - last_tx_bytes)*8/(current_tx_time - last_tx_time) / 1000
-      msg.thermal.uploadTime = os.path.getsize("/data/media/0/realdata") #msg.thermal.freeSpace # Will add this later
+      uploadSize = os.path.getsize("/data/media/0/realdata/*") #msg.thermal.freeSpace # Will add this later
       last_tx_time = current_tx_time
       last_tx_bytes = tx_bytes
     msg.thermal.uploadKbps = tx_uploadKbps
-        
+    msg.thermal.uploadTime = uploadSize
 
     msg.thermal.chargingError = current_filter.x > 0. and msg.thermal.batteryPercent < 90  # if current is positive, then battery is being discharged
     msg.thermal.started = started_ts is not None
