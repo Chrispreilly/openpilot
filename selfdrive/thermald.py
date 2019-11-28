@@ -336,7 +336,7 @@ def thermald_thread():
     if (current_tx_time - last_tx_time) > 0.001: #check every second
       with open("/sys/class/power_supply/battery/current_now") as f:
           tx_bytes = int(f.read())
-      msg.thermal.uploadKbps = current_tx_time #(tx_bytes - last_tx_bytes)/(current_tx_time - last_tx_time) / 1000
+      msg.thermal.uploadKbps = tx_bytes #(tx_bytes - last_tx_bytes)/(current_tx_time - last_tx_time) / 1000
       #msg.thermal.uploadTime = msg.thermal.freeSpace # Will add this later
       last_tx_time = current_tx_time
       last_tx_bytes = tx_bytes
