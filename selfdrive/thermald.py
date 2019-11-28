@@ -121,13 +121,23 @@ def handle_fan_uno(max_cpu_temp, bat_temp, fan_speed):
 
 def get_upload_size(start_path = '/data/media/0/realdata/'):
     total_size = 0
+    seen = {}
     for dirpath, dirnames, filenames in os.walk(start_path):
         for f in filenames:
             fp = os.path.join(dirpath, f)
-            # skip if it is symbolic link
-            if not os.path.islink(fp):
-                total_size += os.path.getsize(fp)
+            try:
+                stat = os.stat(fp)
+            except OSError:
+                continue
 
+            try:
+                seen[stat.st_ino]
+            except KeyError:
+                seen[stat.st_ino] = True
+            else:
+                continue
+
+            total_size += stat.st_size
     return total_size
 
 def thermald_thread():
