@@ -337,7 +337,7 @@ def thermald_thread():
       with open("/sys/class/net/wlan0/statistics/tx_bytes") as f:
           tx_bytes = int(f.read())
       tx_uploadKbps = (tx_bytes - last_tx_bytes)*8/(current_tx_time - last_tx_time) / 1000
-      #msg.thermal.uploadTime = msg.thermal.freeSpace # Will add this later
+      msg.thermal.uploadTime = os.path.getsize("/data/media/0/realdata") #msg.thermal.freeSpace # Will add this later
       last_tx_time = current_tx_time
       last_tx_bytes = tx_bytes
     msg.thermal.uploadKbps = tx_uploadKbps
