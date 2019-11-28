@@ -351,8 +351,11 @@ def thermald_thread():
       uploadSize = get_upload_size()
       last_tx_time = current_tx_time
       last_tx_bytes = tx_bytes
+    if (tx_uploadKbps > 0) and (current_tx_time - last_tx_time) > 1:
+      uploadTime = uploadSize * 8 / (3600 * tx_uploadKbps * 1000)
+      
     msg.thermal.uploadKbps = tx_uploadKbps
-    msg.thermal.uploadTime = uploadSize * 8 / (3600 * tx_uploadKbps * 1000)
+    msg.thermal.uploadTime = uploadTime
 
     msg.thermal.chargingError = current_filter.x > 0. and msg.thermal.batteryPercent < 90  # if current is positive, then battery is being discharged
     msg.thermal.started = started_ts is not None
