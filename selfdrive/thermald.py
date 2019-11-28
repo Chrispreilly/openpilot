@@ -123,42 +123,42 @@ def handle_fan_uno(max_cpu_temp, bat_temp, fan_speed):
 
 def get_upload_rate():
   
-    with open("/sys/class/net/wlan0/statistics/tx_bytes") as f:
-        tx_bytes = int(f.read())
-    tx_uploadKbps = (tx_bytes - last_tx_bytes)*8/(current_tx_time - last_tx_time) / 1000
-    last_tx_time = current_tx_time
-    last_tx_bytes = tx_bytes
+  with open("/sys/class/net/wlan0/statistics/tx_bytes") as f:
+      tx_bytes = int(f.read())
+  tx_uploadKbps = (tx_bytes - last_tx_bytes)*8/(current_tx_time - last_tx_time) / 1000
+  last_tx_time = current_tx_time
+  last_tx_bytes = tx_bytes
 
   return tx_uploadKbps
 
 def get_upload_time():
 
-    total_size = 0
-    seen = {}
-    for dirpath, dirnames, filenames in os.walk('/data/media/0/realdata/'):
-        for f in filenames:
-            fp = os.path.join(dirpath, f)
-            try:
-                stat = os.stat(fp)
-            except OSError:
-                continue
+  total_size = 0
+  seen = {}
+  for dirpath, dirnames, filenames in os.walk('/data/media/0/realdata/'):
+      for f in filenames:
+          fp = os.path.join(dirpath, f)
+          try:
+              stat = os.stat(fp)
+          except OSError:
+              continue
 
-            try:
-                seen[stat.st_ino]
-            except KeyError:
-                seen[stat.st_ino] = True
-            else:
-                continue
+          try:
+              seen[stat.st_ino]
+          except KeyError:
+              seen[stat.st_ino] = True
+          else:
+              continue
 
-            total_size += stat.st_size
+          total_size += stat.st_size
             
-    uploadSize = total_size
+  uploadSize = total_size
       
-      #only calculate if uploading and data to upload exists
-    if (tx_uploadKbps > 0) and (uploadSize > 0):
-      uploadTime = uploadSize * 8 / (3600 * tx_uploadKbps * 1000) 
-    else:
-      uploadTime = 0
+    #only calculate if uploading and data to upload exists
+  if (tx_uploadKbps > 0) and (uploadSize > 0):
+    uploadTime = uploadSize * 8 / (3600 * tx_uploadKbps * 1000) 
+  else:
+    uploadTime = 0
    
   return uploadTime  
 
