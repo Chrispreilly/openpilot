@@ -131,7 +131,10 @@ def get_upload_rate():
   
   with open("/sys/class/net/wlan0/statistics/tx_bytes") as f:
       tx_bytes = int(f.read())
-  tx_uploadKbps = (tx_bytes - last_tx_bytes)*8/(current_tx_time - last_tx_time) / 1000
+  if (current_tx_time - last_tx_time) > 0:
+    tx_uploadKbps = (tx_bytes - last_tx_bytes)*8/(current_tx_time - last_tx_time) / 1000
+  else:
+    tx_uploadKbps = 0
   last_tx_time = current_tx_time
   last_tx_bytes = tx_bytes
 
