@@ -141,7 +141,7 @@ def get_upload_rate():
   return tx_uploadKbps
 
 def get_upload_time():
-  global uploadSize
+  global uploadSize, tx_uploadKbps
   
   total_size = 0
   seen = {}
