@@ -122,6 +122,7 @@ def handle_fan_uno(max_cpu_temp, bat_temp, fan_speed):
 #upload adders below
 
 def get_upload_rate():
+  global last_tx_bytes, current_tx_time, last_tx_time, tx_bytes
   
   with open("/sys/class/net/wlan0/statistics/tx_bytes") as f:
       tx_bytes = int(f.read())
@@ -132,7 +133,8 @@ def get_upload_rate():
   return tx_uploadKbps
 
 def get_upload_time():
-
+  global uploadSize
+  
   total_size = 0
   seen = {}
   for dirpath, dirnames, filenames in os.walk('/data/media/0/realdata/'):
@@ -142,14 +144,12 @@ def get_upload_time():
               stat = os.stat(fp)
           except OSError:
               continue
-
           try:
               seen[stat.st_ino]
           except KeyError:
               seen[stat.st_ino] = True
           else:
               continue
-
           total_size += stat.st_size
             
   uploadSize = total_size
