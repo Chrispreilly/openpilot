@@ -120,6 +120,11 @@ def handle_fan_uno(max_cpu_temp, bat_temp, fan_speed):
   return int(interp(max_cpu_temp, [40.0, 80.0], [0, 100]))
 
 #upload adders below
+    
+current_tx_time = 1.0
+last_tx_time = 1.0
+tx_bytes = 1.0
+last_tx_bytes = 1.0
 
 def get_upload_rate():
   global last_tx_bytes, current_tx_time, last_tx_time, tx_bytes
@@ -196,12 +201,6 @@ def thermald_thread():
     
   #init charging to true
   charging_disabled = False
-
-    
-  current_tx_time = 1.0
-  last_tx_time = 1.0
-  tx_bytes = 1.0
-  last_tx_bytes = 1.0
 
   while 1:
     health = messaging.recv_sock(health_sock, wait=True)
