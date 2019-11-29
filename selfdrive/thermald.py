@@ -127,7 +127,7 @@ tx_bytes = 1.0
 last_tx_bytes = 1.0
 
 def get_upload_rate():
-  global last_tx_bytes, current_tx_time, last_tx_time, tx_bytes
+  global last_tx_bytes, current_tx_time, last_tx_time, tx_bytes, tx_uploadKbps
   
   with open("/sys/class/net/wlan0/statistics/tx_bytes") as f:
       tx_bytes = int(f.read())
