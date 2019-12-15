@@ -1,6 +1,6 @@
 [![](https://i.imgur.com/UetIFyH.jpg)](#)
 
-Welcome to openpilot  
+Welcome to openpilot   
 ====== 
 
 [openpilot](http://github.com/commaai/openpilot) is an open source driver assistance system. Currently, it performs the functions of Adaptive Cruise Control (ACC) and Automated Lane Centering (ALC) for selected Honda, Toyota, Acura, Lexus, Chevrolet, Hyundai, Kia, Subaru, Volkswagen. It's about on par with Tesla Autopilot and GM Super Cruise, and better than [all other manufacturers](http://www.thedrive.com/tech/5707/the-war-for-autonomous-driving-part-iii-us-vs-germany-vs-japan).
