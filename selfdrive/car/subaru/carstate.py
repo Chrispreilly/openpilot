@@ -1,11 +1,7 @@
 import copy
 from common.kalman.simple_kalman import KF1D
 from selfdrive.config import Conversions as CV
-<<<<<<< HEAD
-from selfdrive.can.parser import CANParser#, CANDefine
-=======
 from opendbc.can.parser import CANParser
->>>>>>> 8f78b61a47cac3774b3461387dddb2432457a15c
 from selfdrive.car.subaru.values import DBC, STEER_THRESHOLD
 
 def parse_gear_shifter(gear, vals):
