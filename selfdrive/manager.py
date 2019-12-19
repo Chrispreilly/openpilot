@@ -397,18 +397,13 @@ def manager_thread():
           start_managed_process(p)
     else:
       logger_dead = False
-<<<<<<< HEAD
-      for p in car_started_processes:
+      for p in reversed(car_started_processes):
         #stop visiond at 8 deg
         if p == "visiond" and msg.thermal.bat/1000 < 10:
           break
         else:
           kill_managed_process(p)
-        
-=======
-      for p in reversed(car_started_processes):
-        kill_managed_process(p)
->>>>>>> 8f78b61a47cac3774b3461387dddb2432457a15c
+   
 
     # check the status of all processes, did any of them die?
     running_list = ["%s%s\u001b[0m" % ("\u001b[32m" if running[p].is_alive() else "\u001b[31m", p) for p in running]
