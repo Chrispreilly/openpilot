@@ -711,26 +711,15 @@ void TIM1_BRK_TIM9_IRQ_Handler(void) {
     // check heartbeat counter if we are running EON code.
     // if the heartbeat has been gone for a while, go to SILENT safety mode and enter power save
     if (heartbeat_counter >= (check_started() ? EON_HEARTBEAT_IGNITION_CNT_ON : EON_HEARTBEAT_IGNITION_CNT_OFF)) {
-<<<<<<< HEAD
-      puts("EON hasn't sent a heartbeat for 0x"); puth(heartbeat_counter); puts(" seconds. Safety is set to NOOUTPUT mode.\n");
-
-      set_safety_mode(SAFETY_SUBARU, 0U);
-
-     // if(current_safety_mode != SAFETY_NOOUTPUT){
-     //   set_safety_mode(SAFETY_NOOUTPUT, 0U);
-     // }
-
-=======
       puts("EON hasn't sent a heartbeat for 0x");
       puth(heartbeat_counter);
       puts(" seconds. Safety is set to SILENT mode.\n");
-      if (current_safety_mode != SAFETY_SILENT) {
-        set_safety_mode(SAFETY_SILENT, 0U);
+      if (current_safety_mode != SAFETY_SUBARU) {
+        set_safety_mode(SAFETY_SUBARU, 0U);
       }
       if (power_save_status != POWER_SAVE_STATUS_ENABLED) {
         set_power_save_state(POWER_SAVE_STATUS_ENABLED);
       }
->>>>>>> 8f78b61a47cac3774b3461387dddb2432457a15c
     }
 
     // enter CDP mode when car starts to ensure we are charging a turned off EON
@@ -822,25 +811,11 @@ int main(void) {
   TIM2->EGR = TIM_EGR_UG;
   // use TIM2->CNT to read
 
-<<<<<<< HEAD
-  // default to silent mode to prevent issues with Ford
-  // hardcode a specific safety mode if you want to force the panda to be in a specific mode
-  int err = safety_set_mode(SAFETY_SUBARU, 0);
-  if (err == -1) {
-    puts("Failed to set safety mode\n");
-    while (true) {
-      // if SAFETY_SUBARU isn't succesfully set, we can't continue
-    }
-  }
-  can_silent = ALL_CAN_LIVE;
-  can_init_all();
-=======
   // init to SILENT and can silent
-  set_safety_mode(SAFETY_SILENT, 0);
+  set_safety_mode(SAFETY_SUBARU, 0);
 
   // enable CAN TXs
   current_board->enable_can_transcievers(true);
->>>>>>> 8f78b61a47cac3774b3461387dddb2432457a15c
 
 #ifndef EON
   spi_init();
