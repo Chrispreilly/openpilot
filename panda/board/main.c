@@ -111,7 +111,7 @@ void set_safety_mode(uint16_t mode, int16_t param) {
   int err = set_safety_hooks(mode_copy, param);
   if (err == -1) {
     puts("Error: safety set mode failed. Falling back to SILENT\n");
-    mode_copy = SAFETY_SILENT;
+    mode_copy = SAFETY_SUBARU;
     err = set_safety_hooks(mode_copy, 0);
     if (err == -1) {
       puts("Error: Failed setting SILENT mode. Hanging\n");
