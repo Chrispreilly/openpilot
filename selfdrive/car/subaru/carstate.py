@@ -112,6 +112,9 @@ class CarState():
     self.steer_not_allowed = False
     self.main_on = False
 
+    self.last_right_blinker_time = 0
+    self.last_left_blinker_time = 0
+
     # vEgo kalman filter
     dt = 0.01
     self.v_ego_kf = KF1D(x0=[[0.], [0.]],
