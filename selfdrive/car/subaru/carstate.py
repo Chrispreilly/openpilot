@@ -3,6 +3,7 @@ from common.kalman.simple_kalman import KF1D
 from selfdrive.config import Conversions as CV
 from opendbc.can.parser import CANParser
 from selfdrive.car.subaru.values import DBC, STEER_THRESHOLD
+from common.realtime import sec_since_boot
 
 def parse_gear_shifter(gear, vals):
 
@@ -111,6 +112,9 @@ class CarState():
     self.steer_not_allowed = False
     self.main_on = False
 
+    self.last_right_blinker_time = 0
+    self.last_left_blinker_time = 0
+
     # vEgo kalman filter
     dt = 0.01
     self.v_ego_kf = KF1D(x0=[[0.], [0.]],
@@ -183,3 +187,17 @@ class CarState():
       self.acc_active = True
     else: 
       self.acc_active = False
+      
+    # Keep blinkers true for 1 second to stop oscillating on/off during lever press
+    self.currentTime = sec_since_boot()
+    if self.left_blinker_on:
+      self.last_left_blinker_time = self.currentTime
+    if self.right_blinker_on:
+      self.last_right_blinker_time = self.currentTime
+    
+    self.left_blinker_on = ((self.currentTime - self.last_left_blinker_time) < 1)
+    self.right_blinker_on = ((self.currentTime - self.last_right_blinker_time) < 1)
+    
+    
+    
+    
