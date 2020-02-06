@@ -196,16 +196,7 @@ class CarState():
     else: 
       self.acc_active = False
       
-    # Keep blinkers true for 1 second to stop oscillating on/off during lever press
-    self.currentTime = sec_since_boot()
-    if self.left_blinker_on:
-      self.last_left_blinker_time = self.currentTime
-    if self.right_blinker_on:
-      self.last_right_blinker_time = self.currentTime
-    
-    self.left_blinker_on = ((self.currentTime - self.last_left_blinker_time) < 1)
-    self.right_blinker_on = ((self.currentTime - self.last_right_blinker_time) < 1)
-    
+       
     
     
     
