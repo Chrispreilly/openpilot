@@ -32,7 +32,6 @@ if arch == "aarch64":
     "/data/data/com.termux/files/usr/lib",
     "/system/vendor/lib64",
     "/system/comma/usr/lib",
-    "#phonelibs/yaml-cpp/lib",
     "#phonelibs/nanovg",
     "#phonelibs/libyuv/lib",
   ]
@@ -80,6 +79,7 @@ else:
     ]
 
   rpath = ["phonelibs/capnp-cpp/x64/lib",
+           "phonelibs/zmq/x64/lib",
            "external/tensorflow/lib",
            "cereal",
            "selfdrive/common"]
@@ -114,7 +114,6 @@ env = Environment(
     "#selfdrive",
     "#phonelibs/bzip2",
     "#phonelibs/libyuv/include",
-    "#phonelibs/yaml-cpp/include",
     "#phonelibs/openmax/include",
     "#phonelibs/json/src",
     "#phonelibs/json11",
