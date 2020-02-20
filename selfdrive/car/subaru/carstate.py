@@ -162,10 +162,10 @@ class CarState():
     self.prev_right_blinker_on = self.right_blinker_on
 
     # continuous blinker signals for assisted lane change
-    self.left_blinker_cnt = 20 if cp.vl["Dashlights"]['LEFT_BLINKER'] else max(self.left_blinker_cnt - 1, 0)
+    self.left_blinker_cnt = 50 if cp.vl["Dashlights"]['LEFT_BLINKER'] else max(self.left_blinker_cnt - 1, 0)
     self.left_blinker_on = self.left_blinker_cnt > 0
 
-    self.right_blinker_cnt = 20 if cp.vl["Dashlights"]['RIGHT_BLINKER'] else max(self.right_blinker_cnt - 1, 0)
+    self.right_blinker_cnt = 50 if cp.vl["Dashlights"]['RIGHT_BLINKER'] else max(self.right_blinker_cnt - 1, 0)
     self.right_blinker_on = self.right_blinker_cnt > 0
 
     self.seatbelt_unlatched = cp.vl["Dashlights"]['SEATBELT_FL'] == 1
