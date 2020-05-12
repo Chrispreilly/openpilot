@@ -2,7 +2,7 @@
 
 Welcome to openpilot  
 =======
-Table of Contents
+Table of Contents 
 =======================
 
 * [What is openpilot?](#what-is-openpilot)
