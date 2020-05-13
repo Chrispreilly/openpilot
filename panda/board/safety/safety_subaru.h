@@ -13,6 +13,7 @@ const AddrBus SUBARU_TX_MSGS[] = {{0x100, 0}, {0x122, 0}, {0x164, 0}, {0x221, 0}
 const AddrBus SUBARU_L_TX_MSGS[] = {{0x164, 0}, {0x221, 0}, {0x322, 0}};
 const int SUBARU_TX_MSGS_LEN = sizeof(SUBARU_TX_MSGS) / sizeof(SUBARU_TX_MSGS[0]);
 const int SUBARU_L_TX_MSGS_LEN = sizeof(SUBARU_L_TX_MSGS) / sizeof(SUBARU_L_TX_MSGS[0]);
+int subaru_op_active = 0;
 
 AddrCheckStruct subaru_rx_checks[] = {
   {.addr = { 0x40}, .bus = 0, .check_checksum = true, .max_counter = 15U, .expected_timestep = 10000U},
