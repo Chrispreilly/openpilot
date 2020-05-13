@@ -187,6 +187,10 @@ def thermald_thread():
   params = Params()
   pm = PowerMonitoring()
   no_panda_cnt = 0
+  
+# Make sure charging is enabled
+  charging_disabled = False
+  os.system('echo "1" > /sys/class/power_supply/battery/charging_enabled')
 
   while 1:
     health = messaging.recv_sock(health_sock, wait=True)
@@ -332,7 +336,7 @@ def thermald_thread():
     accepted_terms = params.get("HasAcceptedTerms") == terms_version
     completed_training = params.get("CompletedTrainingVersion") == training_version
 
-    panda_signature = params.get("PandaFirmware")
+    panda_signature = FW_SIGNATURE # params.get("PandaFirmware")
     fw_version_match = (panda_signature is None) or (panda_signature == FW_SIGNATURE)   # don't show alert is no panda is connected (None)
 
     should_start = ignition
