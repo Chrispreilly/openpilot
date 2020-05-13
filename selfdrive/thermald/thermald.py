@@ -187,6 +187,10 @@ def thermald_thread():
   params = Params()
   pm = PowerMonitoring()
   no_panda_cnt = 0
+  
+# Make sure charging is enabled
+  charging_disabled = False
+  os.system('echo "1" > /sys/class/power_supply/battery/charging_enabled')
 
   while 1:
     health = messaging.recv_sock(health_sock, wait=True)
