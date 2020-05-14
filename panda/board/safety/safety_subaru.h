@@ -247,7 +247,7 @@ static void subaru_legacy_init(int16_t param) {
   UNUSED(param);
   controls_allowed = false;
   relay_malfunction_reset();
-  subaru_global = false;
+  subaru_global = true; //testing.... //false;
 }
 
 const safety_hooks subaru_hooks = {
