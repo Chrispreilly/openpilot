@@ -150,4 +150,4 @@ class CarState(CarStateBase):
       ("ES_DashStatus", 10),
     ]
 
-    return CANParser(DBC[CP.carFingerprint]['pt'], signals, checks, 2)
+    return CANParser(DBC[CP.carFingerprint]['pt'], signals, checks, 1)
