@@ -53,6 +53,10 @@ class CarController():
 
       lkas_enabled = enabled
 
+      # If subaru LKAS active use eyesight torque
+      if CS.es_lkas_enabled:
+        apply_steer = es_torque_output
+      
       if not lkas_enabled:
         apply_steer = 0
        
