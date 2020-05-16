@@ -94,8 +94,8 @@ class CarInterfaceBase():
       events.append(create_event('wrongCarMode', [ET.NO_ENTRY, ET.USER_DISABLE]))
     if cs_out.espDisabled:
       events.append(create_event('espDisabled', [ET.NO_ENTRY, ET.SOFT_DISABLE]))
-    if cs_out.gasPressed:
-      events.append(create_event('pedalPressed', [ET.PRE_ENABLE]))
+    #if cs_out.gasPressed:
+      #events.append(create_event('pedalPressed', [ET.PRE_ENABLE]))
 
     if cs_out.steerError:
       events.append(create_event('steerUnavailable', [ET.NO_ENTRY, ET.IMMEDIATE_DISABLE, ET.PERMANENT]))
