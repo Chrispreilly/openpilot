@@ -46,7 +46,7 @@ class CarController():
       
       # If subaru LKAS active use eyesight torque
       if CS.es_lkas_enabled:
-        final_steer = 0 #es_torque_output
+        final_steer = es_torque_output
       
       apply_steer = int(round(final_steer * P.STEER_MAX))
 
