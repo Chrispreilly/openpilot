@@ -71,6 +71,10 @@ class CarState(CarStateBase):
 
     self.es_distance_msg = copy.copy(cp_cam.vl["ES_Distance"])
     self.es_lkas_msg = copy.copy(cp_cam.vl["ES_LKAS_State"])
+    
+    #Eyesight LKAS torque output and LKAS active
+    self.es_torque_output = cp_cam.vl["ES_LKAS"]['LKAS_Output']
+    self.es_lkas_enabled = cp_cam.vl["ES_LKAS_State"]['LKAS_ENABLE_2'] > 0
 
     return ret
 
@@ -143,6 +147,7 @@ class CarState(CarStateBase):
       ("Traffic_light_Ahead", "ES_LKAS_State", 0),
       ("Right_Depart", "ES_LKAS_State", 0),
       ("Signal5", "ES_LKAS_State", 0),
+      ("LKAS_Output", "ES_LKAS", 0),
 
     ]
 
