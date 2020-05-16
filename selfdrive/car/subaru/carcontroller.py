@@ -43,6 +43,11 @@ class CarController():
     if (frame % P.STEER_STEP) == 0:
 
       final_steer = actuators.steer if enabled else 0.
+      
+      # If subaru LKAS active use eyesight torque
+      if CS.es_lkas_enabled:
+        final_steer = es_torque_output
+      
       apply_steer = int(round(final_steer * P.STEER_MAX))
 
       # limits due to driver torque
@@ -52,12 +57,8 @@ class CarController():
       self.steer_rate_limited = new_steer != apply_steer
 
       lkas_enabled = enabled
-
-      # If subaru LKAS active use eyesight torque
-      if CS.es_lkas_enabled:
-        apply_steer = es_torque_output
       
-      if not lkas_enabled:
+      if not lkas_enabled and not CS.es_lkas_enabled:
         apply_steer = 0
        
 
