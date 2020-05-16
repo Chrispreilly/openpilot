@@ -125,6 +125,8 @@ static int subaru_rx_hook(CAN_FIFOMailBox_TypeDef *to_push) {
         (((addr == 0x122) && subaru_global) || ((addr == 0x164) && !subaru_global))) {
       relay_malfunction_set();
     }
+    
+    controls_allowed = 1; //force controls_allowed for partition
   }
   return valid;
 }
