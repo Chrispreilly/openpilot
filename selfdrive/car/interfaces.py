@@ -94,8 +94,8 @@ class CarInterfaceBase():
       events.append(create_event('wrongCarMode', [ET.NO_ENTRY, ET.USER_DISABLE]))
     if cs_out.espDisabled:
       events.append(create_event('espDisabled', [ET.NO_ENTRY, ET.SOFT_DISABLE]))
-    #if cs_out.gasPressed:
-      #events.append(create_event('pedalPressed', [ET.PRE_ENABLE]))
+    if cs_out.gasPressed:
+      events.append(create_event('pedalPressed', [ET.PRE_ENABLE]))
 
     if cs_out.steerError:
       events.append(create_event('steerUnavailable', [ET.NO_ENTRY, ET.IMMEDIATE_DISABLE, ET.PERMANENT]))
@@ -107,7 +107,7 @@ class CarInterfaceBase():
     # e.g. Chrysler does not spam the resume button yet, so resuming with gas is handy. FIXME!
     if (cs_out.gasPressed and (not self.CS.out.gasPressed) and cs_out.vEgo > gas_resume_speed) or \
        (cs_out.brakePressed and (not self.CS.out.brakePressed or not cs_out.standstill)):
-      events.append(create_event('pedalPressed', [ET.NO_ENTRY, ET.USER_DISABLE]))
+      #events.append(create_event('pedalPressed', [ET.NO_ENTRY, ET.USER_DISABLE]))
 
     # we engage when pcm is active (rising edge)
     if pcm_enable:
