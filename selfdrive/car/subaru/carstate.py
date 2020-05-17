@@ -73,8 +73,8 @@ class CarState(CarStateBase):
     self.es_lkas_msg = copy.copy(cp_cam.vl["ES_LKAS_State"])
     
     #Eyesight LKAS torque output and LKAS active
-    ret.es_torque_output = cp_cam.vl["ES_LKAS"]['LKAS_Output']
-    ret.es_lkas_enabled = cp_cam.vl["ES_LKAS_State"]['LKAS_ENABLE_2'] > 0
+    self.es_torque_output = cp_cam.vl["ES_LKAS"]['LKAS_Output']
+    self.es_lkas_enabled = cp_cam.vl["ES_LKAS_State"]['LKAS_ENABLE_2'] > 0
 
     return ret
 
