@@ -25,6 +25,7 @@ class CarState(CarStateBase):
     self.right_blinker_cnt = 0
     can_define = CANDefine(DBC[CP.carFingerprint]['pt'])
     self.shifter_values = can_define.dv["Transmission"]['Gear']
+    self.es_lkas_enabled = False
 
   def update(self, cp, cp_cam):
     ret = car.CarState.new_message()
@@ -56,7 +57,7 @@ class CarState(CarStateBase):
     ret.steeringPressed = abs(ret.steeringTorque) > STEER_THRESHOLD[self.car_fingerprint]
 
 
-    ret.cruiseState.enabled = cp.vl["CruiseControl"]['Cruise_Activated'] != 0
+    ret.cruiseState.enabled = cp.vl["CruiseControl"]['Cruise_Activated'] != 0 and not self.es_lkas_enabled
     ret.cruiseState.available = cp.vl["CruiseControl"]['Cruise_On'] != 0
     ret.cruiseState.speed = cp_cam.vl["ES_DashStatus"]['Cruise_Set_Speed'] * CV.KPH_TO_MS
     # 1 = imperial, 6 = metric
