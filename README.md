@@ -1,3 +1,9 @@
+
+Chrispreilly additions
+* charge battery between 60-80% only
+* When LKAS button is active use stock steering torque
+* Crosstrek fingerprint updates
+
 [![](https://i.imgur.com/UelUjKAh.png)](#)
 
 Welcome to openpilot  
