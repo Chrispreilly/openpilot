@@ -16,17 +16,17 @@ const int SUBARU_L_TX_MSGS_LEN = sizeof(SUBARU_L_TX_MSGS) / sizeof(SUBARU_L_TX_M
 int subaru_op_active = 0;
 
 AddrCheckStruct subaru_rx_checks[] = {
-  {.addr = { 0x40}, .bus = 0, .check_checksum = true, .max_counter = 15U, .expected_timestep = 10000U},
-  {.addr = {0x119}, .bus = 0, .check_checksum = true, .max_counter = 15U, .expected_timestep = 20000U},
-  {.addr = {0x139}, .bus = 0, .check_checksum = true, .max_counter = 15U, .expected_timestep = 20000U},
-  {.addr = {0x13a}, .bus = 0, .check_checksum = true, .max_counter = 15U, .expected_timestep = 20000U},
-  {.addr = {0x240}, .bus = 0, .check_checksum = true, .max_counter = 15U, .expected_timestep = 50000U},
+  {.msg = {{ 0x40, 0, 8, .check_checksum = true, .max_counter = 15U, .expected_timestep = 10000U}}},
+  {.msg = {{0x119, 0, 8, .check_checksum = true, .max_counter = 15U, .expected_timestep = 20000U}}},
+  {.msg = {{0x139, 0, 8, .check_checksum = true, .max_counter = 15U, .expected_timestep = 20000U}}},
+  {.msg = {{0x13a, 0, 8, .check_checksum = true, .max_counter = 15U, .expected_timestep = 20000U}}},
+  {.msg = {{0x240, 0, 8, .check_checksum = true, .max_counter = 15U, .expected_timestep = 50000U}}},
 };
 // TODO: do checksum and counter checks after adding the signals to the outback dbc file
 AddrCheckStruct subaru_l_rx_checks[] = {
-  {.addr = {0x140}, .bus = 0, .expected_timestep = 10000U},
-  {.addr = {0x371}, .bus = 0, .expected_timestep = 20000U},
-  {.addr = {0x144}, .bus = 0, .expected_timestep = 50000U},
+  {.msg = {{0x140, 0, 8, .expected_timestep = 10000U}}},
+  {.msg = {{0x371, 0, 8, .expected_timestep = 20000U}}},
+  {.msg = {{0x144, 0, 8, .expected_timestep = 50000U}}},
 };
 const int SUBARU_RX_CHECK_LEN = sizeof(subaru_rx_checks) / sizeof(subaru_rx_checks[0]);
 const int SUBARU_L_RX_CHECK_LEN = sizeof(subaru_l_rx_checks) / sizeof(subaru_l_rx_checks[0]);
@@ -134,10 +134,9 @@ static int subaru_rx_hook(CAN_FIFOMailBox_TypeDef *to_push) {
 static int subaru_tx_hook(CAN_FIFOMailBox_TypeDef *to_send) {
   int tx = 1;
   int addr = GET_ADDR(to_send);
-  int bus = GET_BUS(to_send);
 
-  if ((!msg_allowed(addr, bus, SUBARU_TX_MSGS, SUBARU_TX_MSGS_LEN) && subaru_global) ||
-      (!msg_allowed(addr, bus, SUBARU_L_TX_MSGS, SUBARU_L_TX_MSGS_LEN) && !subaru_global)) {
+  if ((!msg_allowed(to_send, SUBARU_TX_MSGS, SUBARU_TX_MSGS_LEN) && subaru_global) ||
+      (!msg_allowed(to_send, SUBARU_L_TX_MSGS, SUBARU_L_TX_MSGS_LEN) && !subaru_global)) {
     tx = 0;
   }
 
