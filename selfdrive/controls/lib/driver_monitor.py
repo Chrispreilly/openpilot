@@ -256,7 +256,7 @@ class DriverStatus():
 #    elif self.awareness <= self.threshold_prompt:
 #      # prompt orange alert
 #      alert = EventName.promptDriverDistracted if self.active_monitoring_mode else EventName.promptDriverUnresponsive
-    elif self.awareness <= self.threshold_pre:
+    if self.awareness <= self.threshold_pre:
       # pre green alert
       alert = EventName.preDriverDistracted if self.active_monitoring_mode else EventName.preDriverUnresponsive
 
