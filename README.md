@@ -3,6 +3,7 @@ Chrispreilly additions
 * charge battery between 60-80% only
 * When LKAS button is active use stock steering torque
 * Crosstrek fingerprint updates
+* Enable Localizer from shadow mode
 
 [![](https://i.imgur.com/UelUjKAh.png)](#)
 
