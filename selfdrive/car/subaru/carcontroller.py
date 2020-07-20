@@ -25,8 +25,6 @@ class CarController():
     self.es_lkas_cnt = -1
     self.steer_rate_limited = False
 
-    # Setup detection helper. Routes commands to
-    # an appropriate CAN bus number.
     self.params = CarControllerParams()
     self.packer = CANPacker(DBC[CP.carFingerprint]['pt'])
 
