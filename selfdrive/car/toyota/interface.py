@@ -63,7 +63,7 @@ class CarInterface(CarInterfaceBase):
 
     elif candidate == CAR.COROLLA:
       stop_and_go = False
-      ret.safetyParam = 100
+      ret.safetyParam = 88
       ret.wheelbase = 2.70
       ret.steerRatio = 18.27
       tire_stiffness_factor = 0.444  # not optimized yet
@@ -313,12 +313,11 @@ class CarInterface(CarInterfaceBase):
 
     ret.canValid = self.cp.can_valid and self.cp_cam.can_valid
     ret.steeringRateLimited = self.CC.steer_rate_limited if self.CC is not None else False
-    ret.buttonEvents = []
 
     # events
     events = self.create_common_events(ret)
 
-    if self.cp_cam.can_invalid_cnt >= 200 and self.CP.enableCamera:
+    if self.cp_cam.can_invalid_cnt >= 200 and self.CP.enableCamera and not self.CP.isPandaBlack:
       events.add(EventName.invalidGiraffeToyota)
     if self.CS.low_speed_lockout and self.CP.openpilotLongitudinalControl:
       events.add(EventName.lowSpeedLockout)
