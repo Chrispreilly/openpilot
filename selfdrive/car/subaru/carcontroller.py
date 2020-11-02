@@ -1,9 +1,6 @@
-<<<<<<< HEAD
 #from common.numpy_fast import clip
 from common.realtime import sec_since_boot
 from selfdrive.boardd.boardd import can_list_to_can_capnp
-=======
->>>>>>> 8369e11417047d8cf7677a995f7f828e214765da
 from selfdrive.car import apply_std_steer_torque_limits
 from selfdrive.car.subaru import subarucan
 from selfdrive.car.subaru.values import DBC, PREGLOBAL_CARS
