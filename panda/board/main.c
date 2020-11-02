@@ -707,18 +707,9 @@ void TIM1_BRK_TIM9_IRQ_Handler(void) {
       // unless we are in power saving mode
       current_board->set_led(LED_BLUE, (uptime_cnt & 1U) && (power_save_status == POWER_SAVE_STATUS_ENABLED));
 
-    #ifdef EON
-    // check heartbeat counter if we are running EON code.
-    // if the heartbeat has been gone for a while, go to SILENT safety mode and enter power save
-    if (heartbeat_counter >= (check_started() ? EON_HEARTBEAT_IGNITION_CNT_ON : EON_HEARTBEAT_IGNITION_CNT_OFF)) {
-      puts("EON hasn't sent a heartbeat for 0x");
-      puth(heartbeat_counter);
-      puts(" seconds. Safety is set to SILENT mode.\n");
-      if (current_safety_mode != SAFETY_SUBARU) {
-        set_safety_mode(SAFETY_SUBARU, 0U);
-      }
-      if (power_save_status != POWER_SAVE_STATUS_ENABLED) {
-        set_power_save_state(POWER_SAVE_STATUS_ENABLED);
+          // increase heartbeat counter and cap it at the uint32 limit
+      if (heartbeat_counter < __UINT32_MAX__) {
+        heartbeat_counter += 1U;
       }
 
       #ifdef EON
@@ -750,7 +741,6 @@ void TIM1_BRK_TIM9_IRQ_Handler(void) {
       if (check_started() && (usb_power_mode != USB_POWER_CDP)) {
         current_board->set_usb_power_mode(USB_POWER_CDP);
       }
-      #endif
 
       // check registers
       check_registers();
@@ -782,7 +772,7 @@ int main(void) {
   init_interrupts(true);
 
   // 8Hz timer
-  REGISTER_INTERRUPT(TIM1_BRK_TIM9_IRQn, TIM1_BRK_TIM9_IRQ_Handler, 10U, FAULT_INTERRUPT_RATE_TIM9);
+  REGISTER_INTERRUPT(TIM1_BRK_TIM9_IRQn, TIM1_BRK_TIM9_IRQ_Handler, 10U, FAULT_INTERRUPT_RATE_TIM9)
 
   // shouldn't have interrupts here, but just in case
   disable_interrupts();
