@@ -768,6 +768,7 @@ void TIM1_BRK_TIM9_IRQ_Handler(void) {
       // synchronous safety check
       safety_tick(current_hooks);
     }
+    #endif
 
     loop_counter++;
     loop_counter %= 8U;
