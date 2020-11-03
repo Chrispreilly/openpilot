@@ -65,11 +65,3 @@ def create_es_throttle_control(packer, fake_button, es_accel_msg):
   values["Checksum"] = subaru_preglobal_checksum(packer, values, "ES_CruiseThrottle")
 
   return packer.make_can_msg("ES_CruiseThrottle", 0, values)
-
-def create_openpilot_active(packer):
-  values = {
-    "ACTIVE": 1
-  }
-
-
-
