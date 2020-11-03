@@ -66,10 +66,6 @@ class CarController():
       self.apply_steer = apply_steer
       self.actuators_steer = actuators.steer
 
-    # generate 1Hz op_active msg for global to enable panda es filtering
-    if (frame % 100) == 0:
-      can_sends.append(subarucan.create_openpilot_active(self.packer))
-
 
     # *** alerts and pcm cancel ***
 
