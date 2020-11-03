@@ -12,11 +12,8 @@ const int SUBARU_STANDSTILL_THRSLD = 20;  // about 1kph
 const int SUBARU_L_DRIVER_TORQUE_ALLOWANCE = 75;
 const int SUBARU_L_DRIVER_TORQUE_FACTOR = 10;
 
-const CanMsg SUBARU_TX_MSGS[] = {{0x100, 0, 8}, {0x122, 0, 8}, {0x164, 0, 8}, {0x221, 0, 8}, {0x322, 0, 8}};
-const CanMsg SUBARU_L_TX_MSGS[] = {{0x164, 0, 8}, {0x221, 0, 8}, {0x322, 0, 8}};
+const CanMsg SUBARU_TX_MSGS[] = {{0x122, 0, 8}, {0x221, 0, 8}, {0x322, 0, 8}};
 const int SUBARU_TX_MSGS_LEN = sizeof(SUBARU_TX_MSGS) / sizeof(SUBARU_TX_MSGS[0]);
-const int SUBARU_L_TX_MSGS_LEN = sizeof(SUBARU_L_TX_MSGS) / sizeof(SUBARU_L_TX_MSGS[0]);
-int subaru_op_active = 0;
 
 AddrCheckStruct subaru_rx_checks[] = {
   {.msg = {{ 0x40, 0, 8, .check_checksum = true, .max_counter = 15U, .expected_timestep = 10000U}}},
@@ -26,6 +23,10 @@ AddrCheckStruct subaru_rx_checks[] = {
   {.msg = {{0x240, 0, 8, .check_checksum = true, .max_counter = 15U, .expected_timestep = 50000U}}},
 };
 const int SUBARU_RX_CHECK_LEN = sizeof(subaru_rx_checks) / sizeof(subaru_rx_checks[0]);
+
+const CanMsg SUBARU_L_TX_MSGS[] = {{0x161, 0, 8}, {0x164, 0, 8}};
+const int SUBARU_L_TX_MSGS_LEN = sizeof(SUBARU_L_TX_MSGS) / sizeof(SUBARU_L_TX_MSGS[0]);
+
 // TODO: do checksum and counter checks after adding the signals to the outback dbc file
 AddrCheckStruct subaru_l_rx_checks[] = {
   {.msg = {{0x140, 0, 8, .expected_timestep = 10000U}}},
@@ -158,11 +159,6 @@ static int subaru_tx_hook(CAN_FIFOMailBox_TypeDef *to_send) {
     tx = 0;
   }
 
-  // subaru_op_active presence check
-  if (addr == 0x100) {
-    subaru_op_active = 1;
-  }
-
   // steer cmd checks
   if (addr == 0x122) {
     int desired_torque = ((GET_BYTES_04(to_send) >> 16) & 0x1FFF);
@@ -281,31 +277,21 @@ static int subaru_legacy_tx_hook(CAN_FIFOMailBox_TypeDef *to_send) {
 
 static int subaru_fwd_hook(int bus_num, CAN_FIFOMailBox_TypeDef *to_fwd) {
   int bus_fwd = -1;
-  if (bus_num == 0) {
-    bus_fwd = 1;  // Camera CAN
-  }
 
-  if (bus_num == 1) {
-    // 356 is LKAS for outback 2015
-    // 290 is LKAS for Global Platform
-
-//  if (bus_num == 2) {
-    // 290 is LKAS for Global Platform
-    // 356 is LKAS for outback 2015
-
-    // 545 is ES_Distance
-    // 802 is ES_LKAS
-
-    // filter only when subaru_op_active is set
-    if (subaru_op_active) {
+  if (!relay_malfunction) {
+    if (bus_num == 0) {
+      bus_fwd = 1;  // Camera CAN
+    }
+    if (bus_num == 1) {
+      // Global platform
+      // 0x122 ES_LKAS
+      // 0x221 ES_Distance
+      // 0x322 ES_LKAS_State
       int addr = GET_ADDR(to_fwd);
       int block_msg = ((addr == 0x122) || (addr == 0x221) || (addr == 0x322));
       if (!block_msg) {
         bus_fwd = 0;  // Main CAN
       }
-
-    } else {
-       bus_fwd = 0; // Main CAN
     }
   }
   // fallback to do not forward
