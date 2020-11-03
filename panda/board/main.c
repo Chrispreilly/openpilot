@@ -741,6 +741,7 @@ void TIM1_BRK_TIM9_IRQ_Handler(void) {
       if (check_started() && (usb_power_mode != USB_POWER_CDP)) {
         current_board->set_usb_power_mode(USB_POWER_CDP);
       }
+      #endif
 
       // check registers
       check_registers();
@@ -758,7 +759,6 @@ void TIM1_BRK_TIM9_IRQ_Handler(void) {
       // synchronous safety check
       safety_tick(current_hooks);
     }
-    #endif
 
     loop_counter++;
     loop_counter %= 8U;
