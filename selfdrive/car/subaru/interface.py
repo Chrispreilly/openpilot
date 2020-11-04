@@ -44,7 +44,7 @@ class CarInterface(CarInterfaceBase):
       ret.lateralTuning.pid.kiBP, ret.lateralTuning.pid.kpBP = [[0., 20.], [0., 20.]]
       ret.lateralTuning.pid.kpV, ret.lateralTuning.pid.kiV = [[0.0025, 0.1], [0.00025, 0.01]]
 
-    if False: #candidate == CAR.IMPREZA:
+    if candidate == CAR.IMPREZA:
       ret.mass = 1568. + STD_CARGO_KG
       ret.wheelbase = 2.67
       ret.centerToFront = ret.wheelbase * 0.5
@@ -57,7 +57,7 @@ class CarInterface(CarInterfaceBase):
       ret.steerMaxV = [1.]
       
       #start crosstrek with imprezza values
-    if candidate in [CAR.IMPREZA, CAR.CROSSTREK]: #== CAR.CROSSTREK:
+    if False: candidate in [CAR.IMPREZA, CAR.CROSSTREK]: #== CAR.CROSSTREK:
       ret.mass = 1412. + STD_CARGO_KG
       ret.wheelbase = 2.66
       ret.centerToFront = ret.wheelbase * 0.5
