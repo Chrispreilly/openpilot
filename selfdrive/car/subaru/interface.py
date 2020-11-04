@@ -57,7 +57,7 @@ class CarInterface(CarInterfaceBase):
       ret.steerMaxV = [1.]
       
       #start crosstrek with imprezza values
-    if False: candidate in [CAR.IMPREZA, CAR.CROSSTREK]: #== CAR.CROSSTREK:
+    if False: #candidate in [CAR.IMPREZA, CAR.CROSSTREK]: #== CAR.CROSSTREK:
       ret.mass = 1412. + STD_CARGO_KG
       ret.wheelbase = 2.66
       ret.centerToFront = ret.wheelbase * 0.5
