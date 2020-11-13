@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 from cereal import car
-from selfdrive.car.chrysler.values import Ecu, ECU_FINGERPRINT, CAR, FINGERPRINTS
-from selfdrive.car import STD_CARGO_KG, scale_rot_inertia, scale_tire_stiffness, is_ecu_disconnected, gen_empty_fingerprint
+from selfdrive.car.chrysler.values import CAR
+from selfdrive.car import STD_CARGO_KG, scale_rot_inertia, scale_tire_stiffness, gen_empty_fingerprint
 from selfdrive.car.interfaces import CarInterfaceBase
 
 
@@ -11,13 +11,11 @@ class CarInterface(CarInterfaceBase):
     return float(accel) / 3.0
 
   @staticmethod
-  def get_params(candidate, fingerprint=None, has_relay=False, car_fw=None):
+  def get_params(candidate, fingerprint=None, car_fw=None):
     if fingerprint is None:
       fingerprint = gen_empty_fingerprint()
-    if car_fw is None:
-      car_fw = []
 
-    ret = CarInterfaceBase.get_std_params(candidate, fingerprint, has_relay)
+    ret = CarInterfaceBase.get_std_params(candidate, fingerprint)
     ret.carName = "chrysler"
     ret.safetyModel = car.CarParams.SafetyModel.chrysler
 
@@ -54,8 +52,7 @@ class CarInterface(CarInterfaceBase):
     # mass and CG position, so all cars will have approximately similar dyn behaviors
     ret.tireStiffnessFront, ret.tireStiffnessRear = scale_tire_stiffness(ret.mass, ret.wheelbase, ret.centerToFront)
 
-    ret.enableCamera = is_ecu_disconnected(fingerprint[0], FINGERPRINTS, ECU_FINGERPRINT, candidate, Ecu.fwdCamera) or has_relay
-    print("ECU Camera Simulated: {0}".format(ret.enableCamera))
+    ret.enableCamera = True
 
     return ret
 
@@ -71,8 +68,6 @@ class CarInterface(CarInterfaceBase):
 
     # speeds
     ret.steeringRateLimited = self.CC.steer_rate_limited if self.CC is not None else False
-
-    ret.buttonEvents = []
 
     # events
     events = self.create_common_events(ret, extra_gears=[car.CarState.GearShifter.low],

@@ -1,4 +1,5 @@
-from common.url_file import URLFile
+from tools.lib.url_file import URLFile
+
 
 def FileReader(fn, debug=False):
   if fn.startswith("http://") or fn.startswith("https://"):
