@@ -14,7 +14,7 @@ EventName = car.CarEvent.EventName
 #  We recommend that you do not change these numbers from the defaults.
 # ******************************************************************************************
 
-_AWARENESS_TIME = 35.  # passive wheel touch total timeout
+_AWARENESS_TIME = 35000.  # passive wheel touch total timeout
 _AWARENESS_PRE_TIME_TILL_TERMINAL = 12.
 _AWARENESS_PROMPT_TIME_TILL_TERMINAL = 6.
 _DISTRACTED_TIME = 11.
@@ -249,15 +249,15 @@ class DriverStatus():
 
     alert = None
     if self.awareness <= 0.:
-      # terminal red alert: disengagement required
-      alert = EventName.driverDistracted if self.active_monitoring_mode else EventName.driverUnresponsive
-      self.hi_std_alert_enabled = True
-      self.terminal_time += 1
-      if awareness_prev > 0.:
-        self.terminal_alert_cnt += 1
-    elif self.awareness <= self.threshold_prompt:
-      # prompt orange alert
-      alert = EventName.promptDriverDistracted if self.active_monitoring_mode else EventName.promptDriverUnresponsive
+#      # terminal red alert: disengagement required
+#      alert = EventName.driverDistracted if self.active_monitoring_mode else EventName.driverUnresponsive
+#      self.hi_std_alert_enabled = True
+#      self.terminal_time += 1
+#      if awareness_prev > 0.:
+#        self.terminal_alert_cnt += 1
+#    elif self.awareness <= self.threshold_prompt:
+#      # prompt orange alert
+#      alert = EventName.promptDriverDistracted if self.active_monitoring_mode else EventName.promptDriverUnresponsive
     elif self.awareness <= self.threshold_pre:
       # pre green alert
       alert = EventName.preDriverDistracted if self.active_monitoring_mode else EventName.preDriverUnresponsive
