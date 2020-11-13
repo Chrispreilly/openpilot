@@ -36,8 +36,8 @@ NetworkType = log.ThermalData.NetworkType
 NetworkStrength = log.ThermalData.NetworkStrength
 CURRENT_TAU = 15.   # 15s time constant
 CPU_TEMP_TAU = 5.   # 5s time constant
-DAYS_NO_CONNECTIVITY_MAX = 7  # do not allow to engage after a week without internet
-DAYS_NO_CONNECTIVITY_PROMPT = 4  # send an offroad prompt after 4 days with no internet
+DAYS_NO_CONNECTIVITY_MAX = 70  # do not allow to engage after a week without internet
+DAYS_NO_CONNECTIVITY_PROMPT = 40  # send an offroad prompt after 4 days with no internet
 DISCONNECT_TIMEOUT = 5.  # wait 5 seconds before going offroad after disconnect so you get an alert
 
 prev_offroad_states: Dict[str, Tuple[bool, Optional[str]]] = {}
@@ -202,6 +202,10 @@ def thermald_thread():
   params = Params()
   pm = PowerMonitoring()
   no_panda_cnt = 0
+  
+  # Make sure charging is enabled
+  charging_disabled = False
+  os.system('echo "1" > /sys/class/power_supply/battery/charging_enabled')
 
   thermal_config = get_thermal_config()
 
@@ -388,6 +392,15 @@ def thermald_thread():
       if off_ts is None:
         off_ts = sec_since_boot()
         os.system('echo powersave > /sys/class/devfreq/soc:qcom,cpubw/governor')
+        
+      # Charging cycling between 60-80%
+    if charging_disabled and msg.thermal.batteryPercent < 60:
+      charging_disabled = False
+      os.system("echo 1 > /sys/class/power_supply/battery/charging_enabled")
+    elif not charging_disabled and msg.thermal.batteryPercent > 80:
+      charging_disabled = True
+      os.system("echo 0 > /sys/class/power_supply/battery/charging_enabled")
+    msg.thermal.chargingDisabled = charging_disabled        
 
     # Offroad power monitoring
     pm.calculate(health)
