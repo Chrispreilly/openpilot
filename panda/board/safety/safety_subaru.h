@@ -280,9 +280,9 @@ static int subaru_fwd_hook(int bus_num, CAN_FIFOMailBox_TypeDef *to_fwd) {
 
   if (!relay_malfunction) {
     if (bus_num == 0) {
-      bus_fwd = 2;  // Camera CAN
+      bus_fwd = 1;  // Camera CAN
     }
-    if (bus_num == 2) {
+    if (bus_num == 1) {
       // Global platform
       // 0x122 ES_LKAS
       // 0x221 ES_Distance
