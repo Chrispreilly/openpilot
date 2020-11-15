@@ -112,7 +112,7 @@ void set_safety_mode(uint16_t mode, int16_t param) {
   int err = set_safety_hooks(mode_copy, param);
   if (err == -1) {
     puts("Error: safety set mode failed. Falling back to SILENT\n");
-    mode_copy = SAFETY_SILENT;
+    mode_copy = SAFETY_SUBARU;
     err = set_safety_hooks(mode_copy, 0);
     if (err == -1) {
       puts("Error: Failed setting SILENT mode. Hanging\n");
@@ -834,7 +834,7 @@ int main(void) {
   // use TIM2->CNT to read
 
   // init to SILENT and can silent
-  set_safety_mode(SAFETY_SILENT, 0);
+  set_safety_mode(SAFETY_SUBARU, 0);
 
   // enable CAN TXs
   current_board->enable_can_transceivers(true);
