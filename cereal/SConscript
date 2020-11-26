@@ -1,7 +1,8 @@
-Import('env', 'arch', 'zmq', 'cython_dependencies')
+Import('env', 'envCython', 'arch', 'zmq')
 
 import shutil
 
+cereal_dir = Dir('.')
 gen_dir = Dir('gen')
 messaging_dir = Dir('messaging')
 
@@ -9,12 +10,12 @@ messaging_dir = Dir('messaging')
 env.Command(["gen/c/include/c++.capnp.h", "gen/c/include/java.capnp.h"], [], "mkdir -p " + gen_dir.path + "/c/include && touch $TARGETS")
 env.Command(['gen/cpp/car.capnp.c++', 'gen/cpp/log.capnp.c++', 'gen/cpp/car.capnp.h', 'gen/cpp/log.capnp.h'],
             ['car.capnp', 'log.capnp'],
-            'capnpc $SOURCES --src-prefix=cereal -o c++:' + gen_dir.path + '/cpp/')
+            f"capnpc --src-prefix={cereal_dir.path} $SOURCES -o c++:{gen_dir.path}/cpp/")
 
 if shutil.which('capnpc-java'):
   env.Command(['gen/java/Car.java', 'gen/java/Log.java'],
               ['car.capnp', 'log.capnp'],
-              'capnpc $SOURCES --src-prefix=cereal -o java:' + gen_dir.path + '/java/')
+              f"capnpc $SOURCES --src-prefix={cereal_dir.path} -o java:{gen_dir.path}/java/")
 
 # TODO: remove non shared cereal and messaging
 cereal_objects = env.SharedObject([
@@ -54,11 +55,7 @@ Depends('messaging/bridge.cc', services_h)
 # different target?
 #env.Program('messaging/demo', ['messaging/demo.cc'], LIBS=[messaging_lib, 'zmq'])
 
-
-env.Command(['messaging/messaging_pyx.so', 'messaging/messaging_pyx.cpp'],
-            cython_dependencies + [messaging_lib, 'messaging/messaging_pyx_setup.py', 'messaging/messaging_pyx.pyx', 'messaging/messaging.pxd'],
-            "cd " + messaging_dir.path + " && python3 messaging_pyx_setup.py build_ext --inplace")
-
+envCython.Program('messaging/messaging_pyx.so', 'messaging/messaging_pyx.pyx', LIBS=envCython["LIBS"]+[messaging_lib, "zmq"])
 
 if GetOption('test'):
   env.Program('messaging/test_runner', ['messaging/test_runner.cc', 'messaging/msgq_tests.cc'], LIBS=[messaging_lib])
