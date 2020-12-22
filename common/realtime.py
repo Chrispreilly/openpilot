@@ -1,47 +1,50 @@
 """Utilities for reading real time clocks and keeping soft real time constraints."""
+import gc
 import os
 import time
-import platform
-import subprocess
 import multiprocessing
-from cffi import FFI
 
-# Build and load cython module
-import pyximport
-installer = pyximport.install(inplace=True, build_dir='/tmp')
-from common.clock import monotonic_time, sec_since_boot  # pylint: disable=no-name-in-module, import-error
-pyximport.uninstall(*installer)
-assert monotonic_time
-assert sec_since_boot
+from common.clock import sec_since_boot  # pylint: disable=no-name-in-module, import-error
+from selfdrive.hardware import PC, TICI
 
 
 # time step for each process
 DT_CTRL = 0.01  # controlsd
-DT_PLAN = 0.05  # mpc
 DT_MDL = 0.05  # model
-DT_RDR = 0.05  # radar
-DT_DMON = 0.1  # driver monitoring
 DT_TRML = 0.5  # thermald and manager
 
+# driver monitoring
+if TICI:
+  DT_DMON = 0.05
+else:
+  DT_DMON = 0.1
 
-ffi = FFI()
-ffi.cdef("long syscall(long number, ...);")
-libc = ffi.dlopen(None)
+
+class Priority:
+  # CORE 2
+  # - modeld = 55
+  # - camerad = 54
+  CTRL_LOW = 51 # plannerd & radard
+
+  # CORE 3
+  # - boardd = 55
+  CTRL_HIGH = 53
 
 
 def set_realtime_priority(level):
-  if os.getuid() != 0:
-    print("not setting priority, not root")
-    return
-  if platform.machine() == "x86_64":
-    NR_gettid = 186
-  elif platform.machine() == "aarch64":
-    NR_gettid = 178
-  else:
-    raise NotImplementedError
+  if not PC:
+    os.sched_setscheduler(0, os.SCHED_FIFO, os.sched_param(level))
 
-  tid = libc.syscall(NR_gettid)
-  return subprocess.call(['chrt', '-f', '-p', str(level), str(tid)])
+
+def set_core_affinity(core):
+  if not PC:
+    os.sched_setaffinity(0, [core,])
+
+
+def config_realtime_process(core, priority):
+  gc.disable()
+  set_realtime_priority(priority)
+  set_core_affinity(core)
 
 
 class Ratekeeper():

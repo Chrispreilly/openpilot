@@ -1,10 +1,10 @@
-
 // CAN msgs we care about
-#define MAZDA_LKAS 0x243
-#define MAZDA_LANEINFO 0x440
-#define MAZDA_CRZ_CTRL 0x21c
-#define MAZDA_WHEEL_SPEED 0x215
-#define MAZDA_STEER_TORQUE 0x240
+#define MAZDA_LKAS          0x243
+#define MAZDA_CRZ_CTRL      0x21c
+#define MAZDA_CRZ_BTNS      0x09d
+#define MAZDA_STEER_TORQUE  0x240
+#define MAZDA_ENGINE_DATA   0x202
+#define MAZDA_PEDALS        0x165
 
 // CAN bus numbers
 #define MAZDA_MAIN 0
@@ -21,57 +21,83 @@
 #define MAZDA_MAX_RATE_DOWN 25
 #define MAZDA_DRIVER_TORQUE_ALLOWANCE 15
 #define MAZDA_DRIVER_TORQUE_FACTOR 1
+#define MAZDA_MAX_TORQUE_ERROR 350
 
+// lkas enable speed 52kph, disable at 45kph
+#define MAZDA_LKAS_ENABLE_SPEED  5200
+#define MAZDA_LKAS_DISABLE_SPEED 4500
 
-int mazda_cruise_engaged_last = 0;
-int mazda_rt_torque_last = 0;
-int mazda_desired_torque_last = 0;
-uint32_t mazda_ts_last = 0;
-struct sample_t mazda_torque_driver;         // last few driver torques measured
+const CanMsg MAZDA_TX_MSGS[] = {{MAZDA_LKAS, 0, 8}, {MAZDA_CRZ_BTNS, 0, 8}};
+bool mazda_lkas_allowed = false;
+
+AddrCheckStruct mazda_rx_checks[] = {
+  {.msg = {{MAZDA_CRZ_CTRL,     0, 8, .expected_timestep = 20000U}}},
+  {.msg = {{MAZDA_CRZ_BTNS,     0, 8, .expected_timestep = 100000U}}},
+  {.msg = {{MAZDA_STEER_TORQUE, 0, 8, .expected_timestep = 12000U}}},
+  {.msg = {{MAZDA_ENGINE_DATA,  0, 8, .expected_timestep = 10000U}}},
+  {.msg = {{MAZDA_PEDALS,       0, 8, .expected_timestep = 20000U}}},
+};
+const int MAZDA_RX_CHECKS_LEN = sizeof(mazda_rx_checks) / sizeof(mazda_rx_checks[0]);
 
 // track msgs coming from OP so that we know what CAM msgs to drop and what to forward
-int mazda_op_lkas_detected = 0;
-int mazda_op_laneinfo_detected = 0;
+static int mazda_rx_hook(CAN_FIFOMailBox_TypeDef *to_push) {
+  bool valid = addr_safety_check(to_push, mazda_rx_checks, MAZDA_RX_CHECKS_LEN,
+                            NULL, NULL, NULL);
+  if (valid && (GET_BUS(to_push) == MAZDA_MAIN)) {
+    int addr = GET_ADDR(to_push);
 
-int mazda_forward_cam = 0;
-int mazda_giraffe_switch_2_on = 0;
+    if (addr == MAZDA_ENGINE_DATA) {
+      // sample speed: scale by 0.01 to get kph
+      int speed = (GET_BYTE(to_push, 2) << 8) | GET_BYTE(to_push, 3);
 
-void mazda_rx_hook(CAN_FIFOMailBox_TypeDef *to_push) {
-  int bus = GET_BUS(to_push);
-  int addr = GET_ADDR(to_push);
+      vehicle_moving = speed > 10; // moving when speed > 0.1 kph
 
-  if ((addr == MAZDA_STEER_TORQUE) && (bus == MAZDA_MAIN)) {
-    int torque_driver_new = GET_BYTE(to_push, 0) - 127;
-    // update array of samples
-    update_sample(&mazda_torque_driver, torque_driver_new);
-  }
-
-  // enter controls on rising edge of ACC, exit controls on ACC off
-  if ((addr == MAZDA_CRZ_CTRL) && (bus == MAZDA_MAIN)) {
-    int cruise_engaged = GET_BYTE(to_push, 0) & 8;
-    if (cruise_engaged != 0) {
-      if (!mazda_cruise_engaged_last) {
-	controls_allowed = 1;
+      // Enable LKAS at 52kph going up, disable at 45kph going down
+      if (speed > MAZDA_LKAS_ENABLE_SPEED) {
+        mazda_lkas_allowed = true;
+      } else if (speed < MAZDA_LKAS_DISABLE_SPEED) {
+        mazda_lkas_allowed = false;
+      } else {
+        // Misra-able appeasment block!
       }
     }
-    else {
-      controls_allowed = 0;
-    }
-    mazda_cruise_engaged_last = cruise_engaged;
-  }
 
-  // we have msgs on bus MAZDA_CAM
-  if (bus == MAZDA_CAM) {
-    // the stock CAM is connected
-    if (addr == MAZDA_LKAS) {
-      mazda_forward_cam = 1;
+    if (addr == MAZDA_STEER_TORQUE) {
+      int torque_driver_new = GET_BYTE(to_push, 0) - 127;
+      // update array of samples
+      update_sample(&torque_driver, torque_driver_new);
     }
-    // if we see wheel speed msgs on MAZDA_CAM bus then giraffe switch 2 is high
-    // (hardware passthru)
-    if (addr == MAZDA_WHEEL_SPEED) {
-      mazda_giraffe_switch_2_on = 1;
+
+    // enter controls on rising edge of ACC, exit controls on ACC off
+    if (addr == MAZDA_CRZ_CTRL) {
+      bool cruise_engaged = GET_BYTE(to_push, 0) & 8;
+      if (cruise_engaged) {
+        if (!cruise_engaged_prev) {
+          // do not engage until we hit the speed at which lkas is on
+          if (mazda_lkas_allowed) {
+            controls_allowed = 1;
+          } else {
+            controls_allowed = 0;
+            cruise_engaged = false;
+          }
+        }
+      } else {
+        controls_allowed = 0;
+      }
+      cruise_engaged_prev = cruise_engaged;
     }
+
+    if (addr == MAZDA_ENGINE_DATA) {
+      gas_pressed = (GET_BYTE(to_push, 4) || (GET_BYTE(to_push, 5) & 0xF0));
+    }
+
+    if (addr == MAZDA_PEDALS) {
+      brake_pressed = (GET_BYTE(to_push, 0) & 0x10);
+    }
+
+    generic_rx_checks((addr == MAZDA_LKAS));
   }
+  return valid;
 }
 
 static int mazda_tx_hook(CAN_FIFOMailBox_TypeDef *to_send) {
@@ -79,14 +105,16 @@ static int mazda_tx_hook(CAN_FIFOMailBox_TypeDef *to_send) {
   int addr = GET_ADDR(to_send);
   int bus = GET_BUS(to_send);
 
+  if (!msg_allowed(to_send, MAZDA_TX_MSGS, sizeof(MAZDA_TX_MSGS)/sizeof(MAZDA_TX_MSGS[0]))) {
+    tx = 0;
+  }
+
+  if (relay_malfunction) {
+    tx = 0;
+  }
+
   // Check if msg is sent on the main BUS
   if (bus == MAZDA_MAIN) {
-    if ((addr == MAZDA_LKAS) && !mazda_op_lkas_detected){
-      mazda_op_lkas_detected = 1;
-    }
-    if ((addr == MAZDA_LANEINFO) && !mazda_op_laneinfo_detected){
-      mazda_op_laneinfo_detected = 1;
-    }
 
     // steer cmd checks
     if (addr == MAZDA_LKAS) {
@@ -96,42 +124,42 @@ static int mazda_tx_hook(CAN_FIFOMailBox_TypeDef *to_send) {
 
       if (controls_allowed) {
 
-	// *** global torque limit check ***
-	violation |= max_limit_check(desired_torque, MAZDA_MAX_STEER, -MAZDA_MAX_STEER);
+        // *** global torque limit check ***
+        violation |= max_limit_check(desired_torque, MAZDA_MAX_STEER, -MAZDA_MAX_STEER);
 
-	// *** torque rate limit check ***
-	int desired_torque_last = mazda_desired_torque_last;
-	violation |= driver_limit_check(desired_torque, desired_torque_last, &mazda_torque_driver,
-					MAZDA_MAX_STEER, MAZDA_MAX_RATE_UP, MAZDA_MAX_RATE_DOWN,
-					MAZDA_DRIVER_TORQUE_ALLOWANCE, MAZDA_DRIVER_TORQUE_FACTOR);
-	// used next time
-	mazda_desired_torque_last = desired_torque;
+        // *** torque rate limit check ***
+        violation |= driver_limit_check(desired_torque, desired_torque_last, &torque_driver,
+                                        MAZDA_MAX_STEER, MAZDA_MAX_RATE_UP, MAZDA_MAX_RATE_DOWN,
+                                        MAZDA_DRIVER_TORQUE_ALLOWANCE, MAZDA_DRIVER_TORQUE_FACTOR);
 
-	// *** torque real time rate limit check ***
-	violation |= rt_rate_limit_check(desired_torque, mazda_rt_torque_last, MAZDA_MAX_RT_DELTA);
+        // used next time
+        desired_torque_last = desired_torque;
 
-	// every RT_INTERVAL set the new limits
-	uint32_t ts_elapsed = get_ts_elapsed(ts, mazda_ts_last);
-	if (ts_elapsed > ((uint32_t) MAZDA_RT_INTERVAL)) {
-	  mazda_rt_torque_last = desired_torque;
-	  mazda_ts_last = ts;
-	}
+        // *** torque real time rate limit check ***
+        violation |= rt_rate_limit_check(desired_torque, rt_torque_last, MAZDA_MAX_RT_DELTA);
+
+        // every RT_INTERVAL set the new limits
+        uint32_t ts_elapsed = get_ts_elapsed(ts, ts_last);
+        if (ts_elapsed > ((uint32_t) MAZDA_RT_INTERVAL)) {
+          rt_torque_last = desired_torque;
+          ts_last = ts;
+        }
       }
 
       // no torque if controls is not allowed
       if (!controls_allowed && (desired_torque != 0)) {
-	violation = 1;
+        violation = 1;
       }
 
       // reset to 0 if either controls is not allowed or there's a violation
       if (violation || !controls_allowed) {
-	mazda_desired_torque_last = 0;
-	mazda_rt_torque_last = 0;
-	mazda_ts_last = ts;
+        desired_torque_last = 0;
+        rt_torque_last = 0;
+        ts_last = ts;
       }
 
       if (violation) {
-	tx = 0;
+        tx = 0;
       }
     }
   }
@@ -140,30 +168,34 @@ static int mazda_tx_hook(CAN_FIFOMailBox_TypeDef *to_send) {
 
 static int mazda_fwd_hook(int bus, CAN_FIFOMailBox_TypeDef *to_fwd) {
   int bus_fwd = -1;
-  if (mazda_forward_cam && !mazda_giraffe_switch_2_on) {
+  if (!relay_malfunction) {
     int addr = GET_ADDR(to_fwd);
     if (bus == MAZDA_MAIN) {
       bus_fwd = MAZDA_CAM;
-    }
-    else if (bus == MAZDA_CAM) {
-      // drop stock CAM_LKAS and CAM_LANEINFI if OP is sending them
-      if (!((addr == MAZDA_LKAS) && mazda_op_lkas_detected) &&
-          !((addr == MAZDA_LANEINFO) && mazda_op_laneinfo_detected)) {
-	bus_fwd = MAZDA_MAIN;
+    } else if (bus == MAZDA_CAM) {
+      if (!(addr == MAZDA_LKAS)) {
+        bus_fwd = MAZDA_MAIN;
       }
-    }
-    else {
+    } else {
       bus_fwd = -1;
     }
   }
   return bus_fwd;
 }
 
+static void mazda_init(int16_t param) {
+  UNUSED(param);
+  controls_allowed = false;
+  relay_malfunction_reset();
+  mazda_lkas_allowed = false;
+}
+
 const safety_hooks mazda_hooks = {
-  .init = nooutput_init,
+  .init = mazda_init,
   .rx = mazda_rx_hook,
   .tx = mazda_tx_hook,
   .tx_lin = nooutput_tx_lin_hook,
-  .ignition = default_ign_hook,
   .fwd = mazda_fwd_hook,
+  .addr_check = mazda_rx_checks,
+  .addr_check_len = sizeof(mazda_rx_checks) / sizeof(mazda_rx_checks[0]),
 };

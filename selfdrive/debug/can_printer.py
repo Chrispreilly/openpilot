@@ -4,13 +4,12 @@ import os
 import sys
 from collections import defaultdict
 
-import selfdrive.messaging as messaging
+import cereal.messaging as messaging
 from common.realtime import sec_since_boot
-from selfdrive.services import service_list
 
 
 def can_printer(bus=0, max_msg=None, addr="127.0.0.1"):
-  logcan = messaging.sub_sock(service_list['can'].port, addr=addr)
+  logcan = messaging.sub_sock('can', addr=addr)
 
   start = sec_since_boot()
   lp = sec_since_boot()
@@ -26,9 +25,9 @@ def can_printer(bus=0, max_msg=None, addr="127.0.0.1"):
     if sec_since_boot() - lp > 0.1:
       dd = chr(27) + "[2J"
       dd += "%5.2f\n" % (sec_since_boot() - start)
-      for k,v in sorted(zip(msgs.keys(), map(lambda x: binascii.hexlify(x[-1]), msgs.values()))):
+      for k, v in sorted(zip(msgs.keys(), map(lambda x: binascii.hexlify(x[-1]), msgs.values()))):
         if max_msg is None or k < max_msg:
-          dd += "%s(%6d) %s\n" % ("%04X(%4d)" % (k,k),len(msgs[k]), v.decode('ascii'))
+          dd += "%s(%6d) %s\n" % ("%04X(%4d)" % (k, k), len(msgs[k]), v.decode('ascii'))
       print(dd)
       lp = sec_since_boot()
 
