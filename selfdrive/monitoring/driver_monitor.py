@@ -5,6 +5,7 @@ from common.numpy_fast import interp
 from common.realtime import DT_DMON
 from common.filter_simple import FirstOrderFilter
 from common.stat_live import RunningStatFilter
+from common.is_shane import is_shane
 
 EventName = car.CarEvent.EventName
 

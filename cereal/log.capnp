@@ -735,6 +735,8 @@ struct LongitudinalPlan @0xe00b5b3eba12876c {
     mpc2 @2;
     mpc3 @3;
     model @4;
+    dynamicSpeed @5;
+    curveSlowdown @6;
   }
 
   # deprecated
@@ -1260,6 +1262,46 @@ struct ManagerState {
   }
 }
 
+
+struct DynamicFollowData {
+  mpcTR @0 :Float32;
+  profilePred @1 :UInt16;
+}
+
+struct DynamicFollowButton {
+  status @0 :UInt16;
+}
+
+struct LaneSpeed {
+  fastestLane @0 :Text;
+  state @1 :Text;
+  new @2 :Bool;
+
+  leftLaneSpeeds @3 :List(Float32);
+  middleLaneSpeeds @4 :List(Float32);
+  rightLaneSpeeds @5 :List(Float32);
+
+  leftLaneDistances @6 :List(Float32);
+  middleLaneDistances @7 :List(Float32);
+  rightLaneDistances @8 :List(Float32);
+
+  leftLaneOncoming @9 :Bool;
+  rightLaneOncoming @10 :Bool;
+}
+
+struct LaneSpeedButton {
+  status @0 :UInt16;
+}
+
+struct DynamicCameraOffset {
+  keepingLeft @0 :Bool;
+  keepingRight @1 :Bool;
+}
+
+struct ModelLongButton {
+  enabled @0 :Bool;
+}
+
 struct Event {
   logMonoTime @0 :UInt64;  # nanoseconds
   valid @67 :Bool = true;
@@ -1356,5 +1398,13 @@ struct Event {
     orbFeaturesSummaryDEPRECATED @58 :Legacy.OrbFeaturesSummary;
     featuresDEPRECATED @10 :Legacy.CalibrationFeatures;
     kalmanOdometryDEPRECATED @65 :Legacy.KalmanOdometry;
+
+
+    dynamicFollowData @79 :DynamicFollowData;
+    dynamicFollowButton @80 :DynamicFollowButton;
+    laneSpeed @81 :LaneSpeed;
+    laneSpeedButton @82 :LaneSpeedButton;
+    dynamicCameraOffset @83 :DynamicCameraOffset;
+    modelLongButton @84 :ModelLongButton;
   }
 }
