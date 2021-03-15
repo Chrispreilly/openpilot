@@ -97,7 +97,10 @@ class opParams:
                         'use_lqr': Param(False, bool, 'Enable this to use LQR as your lateral controller over default with any car'),
                         'corollaTSS2_use_indi': Param(False, bool, 'Enable this to use INDI for lat with your TSS2 Corolla'),
                         'rav4TSS2_use_indi': Param(False, bool, 'Enable this to use INDI for lat with your TSS2 RAV4'),
-                        'standstill_hack': Param(False, bool, 'Some cars support stop and go, you just need to enable this')}
+                        'standstill_hack': Param(False, bool, 'Some cars support stop and go, you just need to enable this'),
+                        'kp': Param(0.5,NUMBER,'kp', live=True),
+                        'ki': Param(0.5,NUMBER,'ki', live=True),
+                        'kd': Param(0,NUMBER,'kd', live=True)}
 
     self._params_file = '/data/op_params.json'
     self._backup_file = '/data/op_params_corrupt.json'
