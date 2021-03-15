@@ -29,6 +29,8 @@ class LatPIDController():
     self.sat_limit = sat_limit
     self.convert = convert
 
+    self.op_params = opParams()
+
     self.reset()
 
   @property
