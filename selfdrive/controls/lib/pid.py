@@ -68,18 +68,18 @@ class LatPIDController():
     self.speed = speed
 
     error = float(apply_deadzone(setpoint - measurement, deadzone))
-    self.p = error * self.op_Params.get('k_p') #self.k_p
+    self.p = error * self.op_params.get('k_p') #self.k_p
     self.f = feedforward * self.k_f
 
     d = 0
     if len(self.errors) >= 5:  # makes sure list is long enough
       d = (error - self.errors[-5]) / 5  # get deriv in terms of 100hz (tune scale doesn't change)
-      d *= self.k_d
+      d *= self.op_params.get('k_d') #self.k_d
 
     if override:
       self.i -= self.i_unwind_rate * float(np.sign(self.i))
     else:
-      i = self.i + error * self.op_Params.get('k_i') * self.i_rate #self.k_i * self.i_rate
+      i = self.i + error * self.op_params.get('k_i') * self.i_rate #self.k_i * self.i_rate
       control = self.p + self.f + i + d
 
       if self.convert is not None:
