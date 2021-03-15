@@ -35,17 +35,17 @@ class LatPIDController():
   @property
   def k_p(self):
     #return interp(self.speed, self._k_p[0], self._k_p[1])
-    return self.op_params.get('k_p')
+    return self.op_Params.get('k_p')
 
   @property
   def k_i(self):
     #return interp(self.speed, self._k_i[0], self._k_i[1])
-    return self.op_params.get('k_i')
+    return self.op_Params.get('k_i')
 
   @property
   def k_d(self):
     #return interp(self.speed, self._k_d[0], self._k_d[1])
-    return self.op_params.get('k_d')
+    return self.op_Params.get('k_d')
 
   def _check_saturation(self, control, check_saturation, error):
     saturated = (control < self.neg_limit) or (control > self.pos_limit)
