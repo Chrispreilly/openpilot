@@ -30,6 +30,9 @@ class LatPIDController():
     self.convert = convert
 
     self.op_params = opParams()
+    self.kp_live = 0.5
+    self.ki_live = 0.5
+    self.kd_live = 0.0
 
     self.reset()
 
@@ -69,19 +72,23 @@ class LatPIDController():
   def update(self, setpoint, measurement, speed=0.0, check_saturation=True, override=False, feedforward=0., deadzone=0., freeze_integrator=False):
     self.speed = speed
 
+    self.kp_live = self.op_params.get('k_p')
+    self.ki_live = self.op_params.get('k_i')
+    self.kd_live = self.op_params.get('k_d')
+    
     error = float(apply_deadzone(setpoint - measurement, deadzone))
-    self.p = error * self.op_params.get('k_p') #self.k_p
+    self.p = error * self.kp_live #self.k_p
     self.f = feedforward * self.k_f
 
     d = 0
     if len(self.errors) >= 5:  # makes sure list is long enough
       d = (error - self.errors[-5]) / 5  # get deriv in terms of 100hz (tune scale doesn't change)
-      d *= self.op_params.get('k_d') #self.k_d
+      d *= self.kd_live #self.k_d
 
     if override:
       self.i -= self.i_unwind_rate * float(np.sign(self.i))
     else:
-      i = self.i + error * self.op_params.get('k_i') * self.i_rate #self.k_i * self.i_rate
+      i = self.i + error * self.ki_live * self.i_rate #self.k_i * self.i_rate
       control = self.p + self.f + i + d
 
       if self.convert is not None:
