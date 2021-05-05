@@ -60,6 +60,13 @@ QWidget * toggles_panel() {
                                            "\U0001f96c Disable use of lanelines (Alpha) \U0001f96c",
                                            "In this mode openpilot will ignore lanelines and just drive how it thinks a human would.",
                                            "../assets/offroad/icon_road.png"));
+  
+  toggles_list->addWidget(horizontal_line());
+  toggles_list->addWidget(new ParamControl("ManualParkingBrakeSNGToggle",
+                                           "Enable Subaru NON-EPB stop-and-go",
+                                           "Experimental feature which enables stop and go for Subaru Global models with manual handbrake. Models with electric parking brake should keep this disabled.",
+                                           "../assets/offroad/icon_speed_limit.png"));
+
 
   bool record_lock = Params().read_db_bool("RecordFrontLock");
   record_toggle->setEnabled(!record_lock);
