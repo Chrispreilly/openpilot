@@ -158,11 +158,11 @@ cdef class Params:
     if key not in keys:
       raise UnknownKeyName(key)
 
-    self.p.put(key, dat)
+    self.p.write_db_value(key, dat)
 
   def delete(self, key):
     key = ensure_bytes(key)
-    self.p.remove(key)
+    self.p.delete_db_value(key)
 
 
 def put_nonblocking(key, val, d=None):
