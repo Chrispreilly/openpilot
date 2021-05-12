@@ -38,6 +38,23 @@ def create_es_lkas(packer, es_lkas_msg, visual_alert, left_line, right_line):
 
   return packer.make_can_msg("ES_LKAS_State", 0, values)
 
+def create_throttle(packer, throttle_msg, throttle_cmd):
+
+  values = copy.copy(throttle_msg)
+  if throttle_cmd:
+    values["Throttle_Pedal"] = 5
+
+  return packer.make_can_msg("Throttle", 2, values)
+
+def create_brake_pedal(packer, brake_pedal_msg, speed_cmd):
+
+   values = copy.copy(brake_pedal_msg)
+   if speed_cmd:
+     values["Speed"] = 3
+
+   return packer.make_can_msg("Brake_Pedal", 2, values)
+
+
 # *** Subaru Pre-global ***
 
 def subaru_preglobal_checksum(packer, values, addr):

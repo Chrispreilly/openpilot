@@ -5,6 +5,7 @@ from selfdrive.config import Conversions as CV
 from selfdrive.car.interfaces import CarStateBase
 from opendbc.can.parser import CANParser
 from selfdrive.car.subaru.values import DBC, STEER_THRESHOLD, CAR, PREGLOBAL_CARS
+from common.params import Params
 
 
 class CarState(CarStateBase):
@@ -12,6 +13,9 @@ class CarState(CarStateBase):
     super().__init__(CP)
     can_define = CANDefine(DBC[CP.carFingerprint]['pt'])
     self.shifter_values = can_define.dv["Transmission"]['Gear']
+    
+    params = Params()
+    self.has_epb = params.get("ManualParkingBrakeSNGToggle", encoding='utf8') == "0"
 
   def update(self, cp, cp_cam):
     ret = car.CarState.new_message()
@@ -63,6 +67,8 @@ class CarState(CarStateBase):
                         cp.vl["BodyInfo"]['DOOR_OPEN_RL'],
                         cp.vl["BodyInfo"]['DOOR_OPEN_FR'],
                         cp.vl["BodyInfo"]['DOOR_OPEN_FL']])
+    ret.steerError = cp.vl["Steering_Torque"]['Steer_Error_1'] == 1
+    self.throttle_msg = copy.copy(cp.vl["Throttle"])
 
     if self.car_fingerprint in PREGLOBAL_CARS:
       ret.steerError = cp.vl["Steering_Torque"]["LKA_Lockout"] == 1
@@ -70,11 +76,14 @@ class CarState(CarStateBase):
       self.ready = not cp_cam.vl["ES_DashStatus"]["Not_Ready_Startup"]
       self.es_accel_msg = copy.copy(cp_cam.vl["ES_CruiseThrottle"])
     else:
-      ret.steerError = cp.vl["Steering_Torque"]['Steer_Error_1'] == 1
       ret.steerWarning = cp.vl["Steering_Torque"]['Steer_Warning'] == 1
       ret.cruiseState.nonAdaptive = cp_cam.vl["ES_DashStatus"]['Conventional_Cruise'] == 1
+      self.brake_pedal_msg = copy.copy(cp.vl["Brake_Pedal"])
       self.es_distance_msg = copy.copy(cp_cam.vl["ES_Distance"])
       self.es_lkas_msg = copy.copy(cp_cam.vl["ES_LKAS_State"])
+      self.car_follow = cp_cam.vl["ES_Distance"]['Car_Follow']
+      self.close_distance = cp_cam.vl["ES_Distance"]['Close_Distance']
+      self.cruise_state = cp_cam.vl["ES_DashStatus"]['Cruise_State']
 
     return ret
 
@@ -88,7 +97,6 @@ class CarState(CarStateBase):
       ("Cruise_On", "CruiseControl", 0),
       ("Cruise_Activated", "CruiseControl", 0),
       ("Brake_Pedal", "Brake_Pedal", 0),
-      ("Throttle_Pedal", "Throttle", 0),
       ("LEFT_BLINKER", "Dashlights", 0),
       ("RIGHT_BLINKER", "Dashlights", 0),
       ("SEATBELT_FL", "Dashlights", 0),
@@ -106,6 +114,7 @@ class CarState(CarStateBase):
       ("R_ADJACENT", "BSD_RCTA", 0),
       ("L_APPROACHING", "BSD_RCTA", 0),
       ("R_APPROACHING", "BSD_RCTA", 0),
+      ("Steer_Error_1", "Steering_Torque", 0),
     ]
 
     checks = [
@@ -124,6 +133,23 @@ class CarState(CarStateBase):
       ]
     else:
       signals += [
+        ("Counter", "Throttle", 0),
+        ("Signal1", "Throttle", 0),
+        ("Engine_RPM", "Throttle", 0),
+        ("Signal2", "Throttle", 0),
+        ("Throttle_Pedal", "Throttle", 0),
+        ("Throttle_Cruise", "Throttle", 0),
+        ("Throttle_Combo", "Throttle", 0),
+        ("Signal1", "Throttle", 0),
+        ("Off_Accel", "Throttle", 0),
+
+        ("Counter", "Brake_Pedal", 0),
+        ("Signal1", "Brake_Pedal", 0),
+        ("Speed", "Brake_Pedal", 0),
+        ("Signal2", "Brake_Pedal", 0),
+        ("Brake_Lights", "Brake_Pedal", 0),
+        ("Signal3", "Brake_Pedal", 0),
+        ("Signal4", "Brake_Pedal", 0),
         ("Steer_Error_1", "Steering_Torque", 0),
         ("Steer_Warning", "Steering_Torque", 0),
       ]
@@ -174,6 +200,11 @@ class CarState(CarStateBase):
         ("Button", "ES_CruiseThrottle", 0),
         ("Signal7", "ES_CruiseThrottle", 0),
       ]
+      
+      if CP.carFingerprint not in [CAR.FORESTER_PREGLOBAL, CAR.WRX_PREGLOBAL]:
+        signals += [
+          ("Car_Follow", "ES_DashStatus", 0),
+        ]
 
       checks = [
         ("ES_DashStatus", 20),
@@ -183,6 +214,7 @@ class CarState(CarStateBase):
       signals = [
         ("Cruise_Set_Speed", "ES_DashStatus", 0),
         ("Conventional_Cruise", "ES_DashStatus", 0),
+        ("Cruise_State", "ES_DashStatus", 0),
 
         ("Counter", "ES_Distance", 0),
         ("Signal1", "ES_Distance", 0),
