@@ -1,34 +1,37 @@
-from common.numpy_fast import interp
 from math import atan2, sqrt
+
+from cereal import car
+from common.numpy_fast import interp
 from common.realtime import DT_DMON
 from common.filter_simple import FirstOrderFilter
 from common.stat_live import RunningStatFilter
-
-from cereal import car
 
 EventName = car.CarEvent.EventName
 
 # ******************************************************************************************
 #  NOTE: To fork maintainers.
-#  Disabling or nerfing safety features may get you and your users banned from our servers.
+#  Disabling or nerfing safety features will get you and your users banned from our servers.
 #  We recommend that you do not change these numbers from the defaults.
 # ******************************************************************************************
 
-_AWARENESS_TIME = 3500.  # passive wheel touch total timeout
+_AWARENESS_TIME = 35.  # passive wheel touch total timeout
 _AWARENESS_PRE_TIME_TILL_TERMINAL = 12.
 _AWARENESS_PROMPT_TIME_TILL_TERMINAL = 6.
 _DISTRACTED_TIME = 11.
 _DISTRACTED_PRE_TIME_TILL_TERMINAL = 8.
 _DISTRACTED_PROMPT_TIME_TILL_TERMINAL = 6.
 
-_FACE_THRESHOLD = 0.6
-_EYE_THRESHOLD = 0.6
+_FACE_THRESHOLD = 0.5
+_PARTIAL_FACE_THRESHOLD = 0.5
+_EYE_THRESHOLD = 0.5
 _SG_THRESHOLD = 0.5
 _BLINK_THRESHOLD = 0.5
 _BLINK_THRESHOLD_SLACK = 0.65
 _BLINK_THRESHOLD_STRICT = 0.5
 _PITCH_WEIGHT = 1.35  # pitch matters a lot more
 _POSESTD_THRESHOLD = 0.14
+_E2E_POSE_THRESHOLD = 0.9
+_E2E_EYES_THRESHOLD = 0.75
 _METRIC_THRESHOLD = 0.4
 _METRIC_THRESHOLD_SLACK = 0.55
 _METRIC_THRESHOLD_STRICT = 0.4
@@ -54,7 +57,7 @@ MAX_TERMINAL_DURATION = 300  # 30s
 RESIZED_FOCAL = 320.0
 H, W, FULL_W = 320, 160, 426
 
-class DistractedType():
+class DistractedType:
   NOT_DISTRACTED = 0
   BAD_POSE = 1
   BAD_BLINK = 2
@@ -63,22 +66,19 @@ def face_orientation_from_net(angles_desc, pos_desc, rpy_calib, is_rhd):
   # the output of these angles are in device frame
   # so from driver's perspective, pitch is up and yaw is right
 
-  pitch_net = angles_desc[0]
-  yaw_net = angles_desc[1]
-  roll_net = angles_desc[2]
+  pitch_net, yaw_net, roll_net = angles_desc
 
   face_pixel_position = ((pos_desc[0] + .5)*W - W + FULL_W, (pos_desc[1]+.5)*H)
   yaw_focal_angle = atan2(face_pixel_position[0] - FULL_W//2, RESIZED_FOCAL)
   pitch_focal_angle = atan2(face_pixel_position[1] - H//2, RESIZED_FOCAL)
 
-  roll = roll_net
   pitch = pitch_net + pitch_focal_angle
   yaw = -yaw_net + yaw_focal_angle
 
   # no calib for roll
   pitch -= rpy_calib[1]
   yaw -= rpy_calib[2] * (1 - 2 * int(is_rhd))  # lhd -> -=, rhd -> +=
-  return roll, pitch, yaw
+  return roll_net, pitch, yaw
 
 class DriverPose():
   def __init__(self):
@@ -100,7 +100,8 @@ class DriverBlink():
     self.cfactor = 1.
 
 class DriverStatus():
-  def __init__(self):
+  def __init__(self, rhd=False):
+    self.is_rhd_region = rhd
     self.pose = DriverPose()
     self.pose_calibrated = self.pose.pitch_offseter.filtered_stat.n > _POSE_OFFSET_MIN_COUNT and \
                             self.pose.yaw_offseter.filtered_stat.n > _POSE_OFFSET_MIN_COUNT
@@ -111,16 +112,15 @@ class DriverStatus():
     self.driver_distracted = False
     self.driver_distraction_filter = FirstOrderFilter(0., _DISTRACTED_FILTER_TS, DT_DMON)
     self.face_detected = False
+    self.face_partial = False
     self.terminal_alert_cnt = 0
     self.terminal_time = 0
     self.step_change = 0.
     self.active_monitoring_mode = True
+    self.is_model_uncertain = False
     self.hi_stds = 0
     self.hi_std_alert_enabled = True
     self.threshold_prompt = _DISTRACTED_PROMPT_TIME_TILL_TERMINAL / _DISTRACTED_TIME
-
-    self.is_rhd_region = False
-    self.is_rhd_region_checked = False
 
     self._set_timers(active_monitoring=True)
 
@@ -181,23 +181,25 @@ class DriverStatus():
     self.blink.cfactor = interp(ep, [0, 0.5, 1], [_BLINK_THRESHOLD_STRICT, _BLINK_THRESHOLD, _BLINK_THRESHOLD_SLACK])/_BLINK_THRESHOLD
 
   def get_pose(self, driver_state, cal_rpy, car_speed, op_engaged):
-    # 10 Hz
-    if len(driver_state.faceOrientation) == 0 or len(driver_state.facePosition) == 0 or len(driver_state.faceOrientationStd) == 0 or len(driver_state.facePositionStd) == 0:
+    if not all(len(x) > 0 for x in [driver_state.faceOrientation, driver_state.facePosition,
+                                    driver_state.faceOrientationStd, driver_state.facePositionStd]):
       return
 
+    self.face_partial = driver_state.partialFace > _PARTIAL_FACE_THRESHOLD
+    self.face_detected = driver_state.faceProb > _FACE_THRESHOLD or self.face_partial
     self.pose.roll, self.pose.pitch, self.pose.yaw = face_orientation_from_net(driver_state.faceOrientation, driver_state.facePosition, cal_rpy, self.is_rhd_region)
     self.pose.pitch_std = driver_state.faceOrientationStd[0]
     self.pose.yaw_std = driver_state.faceOrientationStd[1]
     # self.pose.roll_std = driver_state.faceOrientationStd[2]
     model_std_max = max(self.pose.pitch_std, self.pose.yaw_std)
-    self.pose.low_std = model_std_max < _POSESTD_THRESHOLD
-    self.blink.left_blink = driver_state.leftBlinkProb * (driver_state.leftEyeProb > _EYE_THRESHOLD) * (driver_state.sgProb < _SG_THRESHOLD)
-    self.blink.right_blink = driver_state.rightBlinkProb * (driver_state.rightEyeProb > _EYE_THRESHOLD) * (driver_state.sgProb < _SG_THRESHOLD)
-    self.face_detected = driver_state.faceProb > _FACE_THRESHOLD and \
-                          abs(driver_state.facePosition[0]) <= 0.4 and abs(driver_state.facePosition[1]) <= 0.45
+    self.pose.low_std = model_std_max < _POSESTD_THRESHOLD and not self.face_partial
+    self.blink.left_blink = driver_state.leftBlinkProb * (driver_state.leftEyeProb > _EYE_THRESHOLD) * (driver_state.sunglassesProb < _SG_THRESHOLD)
+    self.blink.right_blink = driver_state.rightBlinkProb * (driver_state.rightEyeProb > _EYE_THRESHOLD) * (driver_state.sunglassesProb < _SG_THRESHOLD)
 
-    self.driver_distracted = self._is_driver_distracted(self.pose, self.blink) > 0
-    # first order filters
+    self.driver_distracted = (self._is_driver_distracted(self.pose, self.blink) > 0 and
+                              driver_state.faceProb > _FACE_THRESHOLD and self.pose.low_std) or \
+                             ((driver_state.distractedPose > _E2E_POSE_THRESHOLD or driver_state.distractedEyes > _E2E_EYES_THRESHOLD) and
+                              (self.face_detected and not self.face_partial))
     self.driver_distraction_filter.update(self.driver_distracted)
 
     # update offseter
@@ -209,22 +211,20 @@ class DriverStatus():
     self.pose_calibrated = self.pose.pitch_offseter.filtered_stat.n > _POSE_OFFSET_MIN_COUNT and \
                             self.pose.yaw_offseter.filtered_stat.n > _POSE_OFFSET_MIN_COUNT
 
-    is_model_uncertain = self.hi_stds * DT_DMON > _HI_STD_FALLBACK_TIME
-    self._set_timers(self.face_detected and not is_model_uncertain)
-    if self.face_detected and not self.pose.low_std:
-      if not is_model_uncertain:
-        self.step_change *= min(1.0, max(0.6, 1.6*(model_std_max-0.5)*(model_std_max-2)))
+    self.is_model_uncertain = self.hi_stds * DT_DMON > _HI_STD_FALLBACK_TIME
+    self._set_timers(self.face_detected and not self.is_model_uncertain)
+    if self.face_detected and not self.pose.low_std and not self.driver_distracted:
       self.hi_stds += 1
     elif self.face_detected and self.pose.low_std:
       self.hi_stds = 0
 
   def update(self, events, driver_engaged, ctrl_active, standstill):
-    #if (driver_engaged and self.awareness > 0) or not ctrl_active:
+    if (driver_engaged and self.awareness > 0) or not ctrl_active:
       # reset only when on disengagement if red reached
-    #  self.awareness = 1.
-    #  self.awareness_active = 1.
-    #  self.awareness_passive = 1.
-    #  return
+      self.awareness = 1.
+      self.awareness_active = 1.
+      self.awareness_passive = 1.
+      return
 
     driver_attentive = self.driver_distraction_filter.x < 0.37
     awareness_prev = self.awareness
@@ -233,7 +233,7 @@ class DriverStatus():
       events.add(EventName.driverMonitorLowAcc)
       self.hi_std_alert_enabled = False # only showed once until orange prompt resets it
 
-    if (driver_attentive and self.face_detected and self.pose.low_std): # and self.awareness > 0):
+    if (driver_attentive and self.face_detected and self.pose.low_std and self.awareness > 0):
       # only restore awareness when paying attention and alert is not red
       self.awareness = min(self.awareness + ((_RECOVERY_FACTOR_MAX-_RECOVERY_FACTOR_MIN)*(1.-self.awareness)+_RECOVERY_FACTOR_MIN)*self.step_change, 1.)
       if self.awareness == 1.:
@@ -248,17 +248,17 @@ class DriverStatus():
       self.awareness = max(self.awareness - self.step_change, -0.1)
 
     alert = None
-    #if self.awareness <= 0.:
-    #  # terminal red alert: disengagement required
-    #  alert = EventName.driverDistracted if self.active_monitoring_mode else EventName.driverUnresponsive
-    #  self.hi_std_alert_enabled = True
-    #  self.terminal_time += 1
-    #  if awareness_prev > 0.:
-    #    self.terminal_alert_cnt += 1
-    #elif self.awareness <= self.threshold_prompt:
-    #  # prompt orange alert
-    #  alert = EventName.promptDriverDistracted if self.active_monitoring_mode else EventName.promptDriverUnresponsive
-    if self.awareness <= self.threshold_pre:
+    if self.awareness <= 0.:
+      # terminal red alert: disengagement required
+      alert = EventName.driverDistracted if self.active_monitoring_mode else EventName.driverUnresponsive
+      self.hi_std_alert_enabled = True
+      self.terminal_time += 1
+      if awareness_prev > 0.:
+        self.terminal_alert_cnt += 1
+    elif self.awareness <= self.threshold_prompt:
+      # prompt orange alert
+      alert = EventName.promptDriverDistracted if self.active_monitoring_mode else EventName.promptDriverUnresponsive
+    elif self.awareness <= self.threshold_pre:
       # pre green alert
       alert = EventName.preDriverDistracted if self.active_monitoring_mode else EventName.preDriverUnresponsive
 

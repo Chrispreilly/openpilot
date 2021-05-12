@@ -3,31 +3,35 @@
 #include <QWidget>
 #include <QFrame>
 #include <QTimer>
+#include <QLabel>
 #include <QPushButton>
-#include <QStackedLayout>
+#include <QButtonGroup>
+#include <QScrollArea>
+#include <QStackedWidget>
 
-#include "wifi.hpp"
+#include "selfdrive/ui/qt/widgets/controls.hpp"
 
-// *** settings widgets ***
+// ********** settings window + top-level panels **********
 
-class ParamsToggle : public QFrame {
+class DevicePanel : public QWidget {
   Q_OBJECT
-
 public:
-  explicit ParamsToggle(QString param, QString title, QString description,
-                        QString icon, QWidget *parent = 0);
-
-private:
-  QString param;
-
-public slots:
-  void checkboxClicked(int state);
+  explicit DevicePanel(QWidget* parent = nullptr);
+signals:
+  void reviewTrainingGuide();
 };
 
+class DeveloperPanel : public QFrame {
+  Q_OBJECT
+public:
+  explicit DeveloperPanel(QWidget* parent = nullptr);
 
-// *** settings window ***
+protected:
+  void showEvent(QShowEvent *event) override;
+  QList<LabelControl *> labels;
+};
 
-class SettingsWindow : public QWidget {
+class SettingsWindow : public QFrame {
   Q_OBJECT
 
 public:
@@ -35,15 +39,12 @@ public:
 
 signals:
   void closeSettings();
+  void offroadTransition(bool offroad);
+  void reviewTrainingGuide();
 
 private:
   QPushButton *sidebar_alert_widget;
   QWidget *sidebar_widget;
-  std::map<QString, QWidget *> panels;
-  QStackedLayout *panel_layout;
-
-public slots:
-  void setActivePanel();
-  void closeSidebar();
-  void openSidebar();
+  QButtonGroup *nav_btns;
+  QStackedWidget *panel_widget;
 };

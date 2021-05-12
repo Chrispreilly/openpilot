@@ -36,14 +36,14 @@ from typing import List, Tuple, Optional
 
 from common.basedir import BASEDIR
 from common.params import Params
-from selfdrive.hardware import EON, TICI
+from selfdrive.hardware import EON, TICI, HARDWARE
 from selfdrive.swaglog import cloudlog
 from selfdrive.controls.lib.alertmanager import set_offroad_alert
+from selfdrive.hardware.tici.agnos import flash_agnos_update
 
 LOCK_FILE = os.getenv("UPDATER_LOCK_FILE", "/tmp/safe_staging_overlay.lock")
 STAGING_ROOT = os.getenv("UPDATER_STAGING_ROOT", "/data/safe_staging")
 
-NEOS_VERSION = os.getenv("UPDATER_NEOS_VERSION", "/VERSION")
 NEOSUPDATE_DIR = os.getenv("UPDATER_NEOSUPDATE_DIR", "/data/neoupdate")
 
 OVERLAY_UPPER = os.path.join(STAGING_ROOT, "upper")
@@ -164,7 +164,8 @@ def init_overlay() -> None:
 
   cloudlog.info("preparing new safe staging area")
 
-  Params().put("UpdateAvailable", "0")
+  params = Params()
+  params.put("UpdateAvailable", "0")
   set_consistent_flag(False)
   dismount_overlay()
   if os.path.isdir(STAGING_ROOT):
@@ -196,6 +197,10 @@ def init_overlay() -> None:
   else:
     run(mount_cmd)
 
+  git_diff = run(["git", "diff"], OVERLAY_MERGED, low_priority=True)
+  params.put("GitDiff", git_diff)
+  cloudlog.info(f"git diff output:\n{git_diff}")
+
 
 def finalize_update() -> None:
   """Take the current OverlayFS merged view and finalize a copy outside of
@@ -214,10 +219,28 @@ def finalize_update() -> None:
   cloudlog.info("done finalizing overlay")
 
 
-def handle_neos_update(wait_helper: WaitTimeHelper) -> None:
-  with open(NEOS_VERSION, "r") as f:
-    cur_neos = f.read().strip()
+def handle_agnos_update(wait_helper):
+  cur_version = HARDWARE.get_os_version()
+  updated_version = run(["bash", "-c", r"unset AGNOS_VERSION && source launch_env.sh && \
+                          echo -n $AGNOS_VERSION"], OVERLAY_MERGED).strip()
 
+  cloudlog.info(f"AGNOS version check: {cur_version} vs {updated_version}")
+  if cur_version == updated_version:
+    return
+
+  # prevent an openpilot getting swapped in with a mismatched or partially downloaded agnos
+  set_consistent_flag(False)
+
+  cloudlog.info(f"Beginning background installation for AGNOS {updated_version}")
+  set_offroad_alert("Offroad_NeosUpdate", True)
+
+  manifest_path = os.path.join(OVERLAY_MERGED, "selfdrive/hardware/tici/agnos.json")
+  flash_agnos_update(manifest_path, cloudlog)
+  set_offroad_alert("Offroad_NeosUpdate", False)
+
+
+def handle_neos_update(wait_helper: WaitTimeHelper) -> None:
+  cur_neos = HARDWARE.get_os_version()
   updated_neos = run(["bash", "-c", r"unset REQUIRED_NEOS_VERSION && source launch_env.sh && \
                        echo -n $REQUIRED_NEOS_VERSION"], OVERLAY_MERGED).strip()
 
@@ -294,6 +317,8 @@ def fetch_update(wait_helper: WaitTimeHelper) -> bool:
 
       if EON:
         handle_neos_update(wait_helper)
+      elif TICI:
+        handle_agnos_update(wait_helper)
 
     # Create the finalized, ready-to-swap update
     finalize_update()
@@ -309,10 +334,6 @@ def main():
 
   if params.get("DisableUpdates") == b"1":
     raise RuntimeError("updates are disabled by the DisableUpdates param")
-
-  # TODO: remove this after next release
-  if EON and "letv" not in open("/proc/cmdline").read():
-    raise RuntimeError("updates are disabled due to device deprecation")
 
   if EON and os.geteuid() != 0:
     raise RuntimeError("updated must be launched as root!")
@@ -391,6 +412,7 @@ def main():
     wait_helper.sleep(60)
 
   dismount_overlay()
+
 
 if __name__ == "__main__":
   main()

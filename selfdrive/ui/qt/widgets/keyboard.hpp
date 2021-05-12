@@ -2,6 +2,7 @@
 
 #include <vector>
 
+#include <QFrame>
 #include <QString>
 #include <QWidget>
 #include <QStackedLayout>
@@ -11,10 +12,10 @@ class KeyboardLayout : public QWidget {
   Q_OBJECT
 
 public:
-  explicit KeyboardLayout(QWidget *parent, std::vector<QVector<QString>> layout);
+ explicit KeyboardLayout(QWidget* parent, const std::vector<QVector<QString>>& layout);
 };
 
-class Keyboard : public QWidget {
+class Keyboard : public QFrame {
   Q_OBJECT
 
 public:
@@ -27,5 +28,5 @@ private slots:
   void handleButton(QAbstractButton* m_button);
 
 signals:
-  void emitButton(QString s);
+  void emitButton(const QString &s);
 };
