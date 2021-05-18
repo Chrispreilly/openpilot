@@ -37,7 +37,6 @@ def manager_init():
     ("OpenpilotEnabledToggle", "1"),
     ("VisionRadarToggle", "0"),
     ("IsDriverViewEnabled", "0"),
-    ("ManualParkingBrakeSNGToggle", "0"),
   ]
 
   if TICI:
