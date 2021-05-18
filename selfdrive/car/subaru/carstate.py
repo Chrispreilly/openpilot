@@ -15,7 +15,7 @@ class CarState(CarStateBase):
     self.shifter_values = can_define.dv["Transmission"]['Gear']
     
     params = Params()
-    self.has_epb = params.get("ManualParkingBrakeSNGToggle", encoding='utf8') == "0"
+    self.has_epb = False #params.get("ManualParkingBrakeSNGToggle", encoding='utf8') == "0"
 
   def update(self, cp, cp_cam):
     ret = car.CarState.new_message()
