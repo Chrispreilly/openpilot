@@ -58,13 +58,6 @@ TogglesPanel::TogglesPanel(QWidget *parent) : QWidget(parent) {
                                     this));
   }
 
-  toggles_list->addWidget(horizontal_line());
-  toggles.append(new ParamControl("ManualParkingBrakeSNGToggle",
-                                           "Enable Subaru NON-EPB stop-and-go",
-                                           "Experimental feature which enables stop and go for Subaru Global models with manual handbrake. Models with electric parking brake should keep this disabled.",
-                                           "../assets/offroad/icon_speed_limit.png",
-                                           this));
-
   ParamControl *record_toggle = new ParamControl("RecordFront",
                                                  "Record and Upload Driver Camera",
                                                 "Upload data from the driver facing camera and help improve the driver monitoring algorithm.",
